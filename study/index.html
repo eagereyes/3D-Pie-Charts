@@ -17,13 +17,22 @@
 				fill: darkgray;
 			}
 			
-			bluebody {
-				fill: blue;
+			.bluebody {
+				fill: #005480;
 			}
 			
 			.blueslice {
 				fill: steelblue
 			}
+			
+			#infoPanel {
+				display: none;
+			}
+			
+			#pie {
+				display: none;
+			}
+			
 		</style>
 	</head>
 	<body>
@@ -48,6 +57,7 @@
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="js/bootstrap.min.js"></script>
 		<script src="threedeepies.js"></script>
+		<script src="piestudy.js"></script>
 		<script>
 			var drawInfo = init();
 			
@@ -84,6 +94,11 @@
 
 			}
 
+			if (window.location.hash === '#panel') {
+				$('#infoPanel').show();
+				$('#pie').show();
+				
+			}
 
 			redraw();
 			
