@@ -11,6 +11,8 @@ var NUMS_HIGH = [67,68,70,73,74,74,76,76,76,76,79,80,83,84,85,86,88,89,91,91,93,
 
 var NUM_ROTATIONS = 3;
 
+var trialIndex = 0;
+
 /**
  * Make the combinations for the study trials. All angles here are in degrees for nicer logging.
  * Need to be converted to radians for drawing.
@@ -58,4 +60,26 @@ function makeTrials() {
 	d3.shuffle(trials);
 	
 	return trials;
+}
+
+function nextStep() {
+	trials[trialIndex].endTime = (new Date()).getTime();
+	trials[trialIndex].duration = trials[trialIndex].endTime-trials[trialIndex].startTime;
+	trials[trialIndex].answer = +$('#percent').val();
+		
+	$('#percent').val('');
+
+	trialIndex++;
+	updatePie();
+}
+
+function updatePie() {
+	var trial = trials[trialIndex];
+	draw3DPie(drawInfo, rad(trial.centralAngle), rad(trial.viewAngle), rad(trial.rotation), HEIGHT*.4, trial.height);
+	trials[trialIndex].startTime = (new Date()).getTime();
+}
+
+function startStudy() {
+	trialIndex = 0;
+	updatePie();
 }
