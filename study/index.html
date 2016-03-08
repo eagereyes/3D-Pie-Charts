@@ -25,7 +25,7 @@
 				fill: steelblue
 			}
 			
-			#infoPanel, #studyPanel {
+			#infoPanel, #studyPanel, #question, #thankyou {
 				display: none;
 			}
 			
@@ -33,9 +33,33 @@
 				display: none;
 			}
 			
+			#topSpacing {
+				margin-top: 40px;
+			}
+			
 		</style>
 	</head>
 	<body>
+		<div class="row" id="topSpacing">
+		</div>
+		<div class="row" id="instructions">
+			<div class="col-md-6 col-md-offset-1">
+				<h1>3D Pie Charts Study</h1>
+				<p>This study examines how well people can read three-dimensional (3D) pie charts.
+					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
+				<p>Please answer as accurately as possible. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
+				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
+				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
+				<p>We really appreciate your help with this study. Thank you!</p>
+				<p>&nbsp;</p>
+				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-1" id="question">
+				<h4>What part of the whole (in percent) does the blue slice represent?</h4>
+			</div>
+		</div>
 		<div class="row">
 			<div class="col-md-8" id="pie">
 			</div>
@@ -54,6 +78,14 @@
 		<div class="row">
 			<div class="col-md-offset-8 col-md-4" id="studyPanel">
 				<label>Value: <input type="number" id="percent" onchange="nextStep();" min="1" max="99">%</label>
+			</div>
+		</div>
+
+		<div class="row" id="thankyou">
+			<div class="col-md-11 col-md-offset-1">
+				<h1>Thank you!</h1>
+				<p>Thank you for completing the study! Please paste this code into the text field on Mechnical Turk:</p>
+				<h2 id="code"></h2>
 			</div>
 		</div>
 
@@ -88,7 +120,7 @@
 				var bodyHeight = +$('#bodyHeight')[0].value;
 				$('#bodyVal').text(bodyHeight);
 				
-				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), HEIGHT*.4, bodyHeight);
+				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), HEIGHT/2, bodyHeight);
 				
 				var predictions = predict(rad(centralAngle), rad(viewAngle), rad(rotation));
 				
@@ -105,12 +137,13 @@
 
 				redraw();
 			} else {
-				var trials = makeTrials();
+				var d = ''+(new Date()).getTime();
+				var s = '000000' + Math.floor(Math.random()*1000000);
+				var resultID = d + 'x' + s.substr(s.length-6);
 
-				$('#pie').show();
-				$('#studyPanel').show();
+				$('#code').text(resultID);
 
-				startStudy();
+				var trials = makeTrials(resultID);
 			}
 			
 		</script>
