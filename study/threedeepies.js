@@ -11,6 +11,20 @@ function makeSVG() {
 	return svg;		
 }
 
+function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB) {
+	var leftX = (rotation > Math.PI)?xA:(WIDTH/2-xRadius);
+	var leftY = (rotation > Math.PI)?yA:(HEIGHT/2);
+	
+	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(WIDTH/2+xRadius);
+	var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(HEIGHT/2);
+	
+	drawInfo.svg.append('path')
+		.attr('d', 'M '+leftX+','+leftY+' '+
+		'L '+leftX+','+(leftY+body)+
+		'A '+xRadius+','+yRadius+' 0 0 0 '+rightX+','+(rightY+body)+' '+
+		'L '+rightX+','+rightY+' Z')
+		.attr('class', 'bluebody');
+}
 
 /**
  * All angles in radians
@@ -41,18 +55,11 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body) {
 			.attr('class', 'body');
 
 		if (rotation+centralAngle > Math.PI) {
-			var leftX = (rotation > Math.PI)?xA:(WIDTH/2-xRadius);
-			var leftY = (rotation > Math.PI)?yA:(HEIGHT/2);
+			drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB);
 			
-			var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(WIDTH/2+xRadius);
-			var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(HEIGHT/2);
-			
-			drawInfo.svg.append('path')
-				.attr('d', 'M '+leftX+','+leftY+' '+
-				'L '+leftX+','+(leftY+body)+
-				'A '+xRadius+','+yRadius+' 0 0 0 '+rightX+','+(rightY+body)+' '+
-				'L '+rightX+','+rightY+' Z')
-				.attr('class', 'bluebody');
+			if (rotation+centralAngle > 3*Math.PI) {
+				drawBody(Math.PI, rotation+centralAngle-3*Math.PI, body, xRadius, yRadius, xA, yA, xB, yB);				
+			}
 		}
 	}
 	
