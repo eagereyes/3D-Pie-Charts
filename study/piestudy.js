@@ -115,7 +115,7 @@ function submitResults() {
         csv += values.join(',') + '\n';
     });
 	
-	console.log(csv);
+//	console.log(csv);
 
 	d3.xhr(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
@@ -123,5 +123,8 @@ function submitResults() {
 			'data='+encodeURIComponent(JSON.stringify(csv)))
 		.on('error', function(error) {
 			console.error('ERROR: '+error);
+		})
+		.on('load', function(response) {
+			console.log('Success: '+response);
 		});
 }

@@ -25,7 +25,7 @@
 				fill: steelblue
 			}
 			
-			#infoPanel, #studyPanel, #question, #thankyou, #cond2, cond2question {
+			#infoPanel, #studyPanel, #question, #thankyou, #cond2, #cond2question {
 				display: none;
 			}
 			
@@ -153,6 +153,7 @@
 			if (window.location.hash === '#panel') {
 				$('#infoPanel').show();
 				$('#pie').show();
+				$('#instructions').hide();
 
 				redraw();
 			} else {
