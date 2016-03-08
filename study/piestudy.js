@@ -73,10 +73,11 @@ function nextStep() {
 	trials[trialIndex].answer = +$('#percent').val();
 		
 	$('#percent').val('');
+	d3.select('#progress-'+trialIndex).classed('complete', true);
 
 	trialIndex++;
-//	if (trialIndex < trials.length) {
-	if (trialIndex < 10) {
+	if (trialIndex < trials.length) {
+//	if (trialIndex < 10) {
 		updatePie();
 	} else {
 		$('#question').hide();
@@ -102,6 +103,12 @@ function startStudy() {
 	$('#pie').show();
 	$('#studyPanel').show();
 
+	d3.select('#progressbar').selectAll('.progressbox')
+		.data(d3.range(trials.length))
+		.enter().append('div')
+		.attr('class', 'progressbox')
+		.attr('id', function(d) { return 'progress-'+d; });
+
 	trialIndex = 0;
 	updatePie();
 }
@@ -123,8 +130,8 @@ function submitResults() {
 			'data='+encodeURIComponent(csv))
 		.on('error', function(error) {
 			console.error('ERROR: '+error);
-		})
-		.on('load', function(response) {
-			console.log('Success: '+JSON.stringify(response));
+		// })
+		// .on('load', function(response) {
+		// 	console.log('Success: '+JSON.stringify(response));
 		});
 }

@@ -41,6 +41,18 @@
 				padding: 15px;
 			}
 			
+			.progressbox {
+				width: 8px;
+				height: 8px;
+				margin-right: 1px;
+				background-color: lightgray;
+				display: inline-block;
+			}
+			
+			.complete {
+				background-color: darkgray;
+			}
+			
 		</style>
 	</head>
 	<body>
@@ -97,6 +109,10 @@
 		<div class="row">
 			<div class="col-md-offset-8 col-md-4" id="studyPanel">
 				<label>Value: <input type="number" id="percent" onchange="nextStep();" min="1" max="99">%</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-1 col-md-11" id="progressbar">
 			</div>
 		</div>
 
