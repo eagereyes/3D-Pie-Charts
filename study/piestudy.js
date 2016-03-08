@@ -120,7 +120,7 @@ function submitResults() {
 	d3.xhr(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
 		.post('resultID='+encodeURIComponent(trials[0].resultID)+'&'+
-			'data='+encodeURIComponent(JSON.stringify(csv)))
+			'data='+encodeURIComponent(csv))
 		.on('error', function(error) {
 			console.error('ERROR: '+error);
 		})
