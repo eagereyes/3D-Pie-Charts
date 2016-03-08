@@ -11,7 +11,7 @@ var NUMS_HIGH = [67,68,70,73,74,74,76,76,76,76,79,80,83,84,85,86,88,89,91,91,93,
 
 var NUM_ROTATIONS = 3;
 
-var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit.php';
+var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit_csv.php';
 
 var trialIndex = 0;
 
@@ -75,7 +75,8 @@ function nextStep() {
 	$('#percent').val('');
 
 	trialIndex++;
-	if (trialIndex < trials.length) {
+//	if (trialIndex < trials.length) {
+	if (trialIndex < 10) {
 		updatePie();
 	} else {
 		$('#question').hide();
