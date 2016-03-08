@@ -125,6 +125,6 @@ function submitResults() {
 			console.error('ERROR: '+error);
 		})
 		.on('load', function(response) {
-			console.log('Success: '+JSON.stingify(response));
+			console.log('Success: '+JSON.stringify(response));
 		});
 }
