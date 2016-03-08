@@ -19,7 +19,7 @@ var trialIndex = 0;
  * Make the combinations for the study trials. All angles here are in degrees for nicer logging.
  * Need to be converted to radians for drawing.
  */
-function makeTrials(resultID) {
+function makeTrials(resultID, condition) {
 
 	d3.shuffle(NUMS_LOW);
 	d3.shuffle(NUMS_MID);
@@ -47,6 +47,7 @@ function makeTrials(resultID) {
 					
 					var trial = {
 						resultID: resultID,
+						condition: condition,
 						viewAngle: VIEWANGLES[i],
 						height: HEIGHTS[j],
 						value: value,
