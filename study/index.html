@@ -25,7 +25,7 @@
 				fill: steelblue
 			}
 			
-			#infoPanel, #studyPanel, #question, #thankyou {
+			#infoPanel, #studyPanel, #question, #thankyou, #cond2 {
 				display: none;
 			}
 			
@@ -37,6 +37,10 @@
 				margin-top: 40px;
 			}
 			
+			#wrong, #correct {
+				padding: 15px;
+			}
+			
 		</style>
 	</head>
 	<body>
@@ -44,15 +48,30 @@
 		</div>
 		<div class="row" id="instructions">
 			<div class="col-md-6 col-md-offset-1">
-				<h1>3D Pie Charts Study</h1>
-				<p>This study examines how well people can read three-dimensional (3D) pie charts.
+				<h1>Pie Charts Study</h1>
+				<p>This study examines how well people can read two- and three-dimensional pie charts.
 					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
+				<div id="cond2">
+					<p><strong>Here's how to read these charts: Look at how much area is blue compared to the entire chart.
+						3D pie charts distort the angle of the slice, but not the area as a fraction of the whole! Your accuracy will be much higher if you go by area rather than by angle.</strong></p>
+				</div>
 				<p>Please answer as accurately as possible. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
 				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
 				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
 				<p>&nbsp;</p>
 				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button>
+			</div>
+		</div>
+		<div class="row" id="cond2question">
+			<div class="col-md-7 col-md-offset-1">
+				<h1>How are you supposed to read the charts?</h1>
+				<div class="radio"><label><input type="radio"> Angle</label></div>
+				<div class="radio"><label><input type="radio"> Area</label></div>
+				<div class="radio"><label><input type="radio"> Arc Length</label></div>
+				<p class="bg-danger" id="wrong">Wrong! Please try again!</p>
+				<p class="bg-success" id="correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.<br/>
+				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button></p>
 			</div>
 		</div>
 		<div class="row">
@@ -137,6 +156,10 @@
 
 				redraw();
 			} else {
+				
+				if (window.location.hash === '#cond2')
+					$('#cond2').show();
+				
 				var d = ''+(new Date()).getTime();
 				var s = '000000' + Math.floor(Math.random()*1000000);
 				var resultID = d + 'x' + s.substr(s.length-6);
