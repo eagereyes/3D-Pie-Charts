@@ -67,10 +67,25 @@ function makeTrials(resultID, condition) {
 }
 
 function nextStep() {
+
+	$('.error').hide();
+
+	var response = +$('#percent').val();
+	
+	if (response < 1 || response > 99) {
+		$('#outofrange').show();
+		$('#percent').val('');
+		return
+	} else if (trialIndex < 10 && Math.abs(response-trials[trialIndex].value) > Math.abs(response-(100-trials[trialIndex].value))) {
+		$('#wrongpart').show();
+		$('#percent').val('');
+		return
+	}
+		
 	trials[trialIndex].endTime = (new Date()).getTime();
 	trials[trialIndex].duration = trials[trialIndex].endTime-trials[trialIndex].startTime;
 	trials[trialIndex].step = trialIndex;
-	trials[trialIndex].answer = +$('#percent').val();
+	trials[trialIndex].answer = response;
 		
 	$('#percent').val('');
 	d3.select('#progress-'+trialIndex).classed('complete', true);
@@ -78,7 +93,11 @@ function nextStep() {
 	trialIndex++;
 	if (trialIndex < trials.length) {
 //	if (trialIndex < 10) {
-		updatePie();
+		if (trialIndex === trials.length/3 || trialIndex === 2*trials.length/3) {
+			takeBreak();
+		} else {
+			updatePie();
+		}
 	} else {
 		$('#question').hide();
 		$('#pie').hide();
@@ -96,13 +115,49 @@ function updatePie() {
 	trials[trialIndex].startTime = (new Date()).getTime();
 }
 
-function startStudy() {
-	$('#instructions').hide();
-	
+function takeBreak() {
+	hideStudyStuff();
+	$('#break').show();
+}
+
+function endBreak() {
+	$('#break').hide();
+	showStudyStuff();
+	updatePie();
+}
+
+function showStudyStuff() {
 	$('#question').show();
 	$('#pie').show();
 	$('#studyPanel').show();
 
+	$('#percent').focus();
+}
+
+function hideStudyStuff() {
+	$('#question').hide();
+	$('#pie').hide();
+	$('#studyPanel').hide();
+}
+
+
+function startStudy() {
+	$('#instructions').hide();
+	
+	showStudyStuff();
+
+	var progressbar = d3.select('#progressbar');
+	for (var i = 0; i < trials.length; i++) {
+		progressbar.append('div')
+			.attr('class', 'progressbox')
+			.attr('id', 'progress-'+i);
+
+		if (i+1 === trials.length/3 || i+1 === 2*trials.length/3) {
+			progressbar.append('span')
+				.text('|');
+		}		
+	}
+	
 	d3.select('#progressbar').selectAll('.progressbox')
 		.data(d3.range(trials.length))
 		.enter().append('div')

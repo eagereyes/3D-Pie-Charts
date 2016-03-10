@@ -25,11 +25,16 @@
 				fill: steelblue
 			}
 			
+			.blue {
+				font-weight: bold;
+				color: steelblue;
+			}
+			
 			#infoPanel, #studyPanel, #question, #thankyou, #cond2, #cond2question {
 				display: none;
 			}
 			
-			#pie {
+			#pie, #break {
 				display: none;
 			}
 			
@@ -37,8 +42,10 @@
 				margin-top: 40px;
 			}
 			
-			#wrong, #correct {
+			.error {
 				padding: 15px;
+				font-weight: bold;
+				display: none;
 			}
 			
 			.progressbox {
@@ -53,6 +60,19 @@
 				background-color: darkgray;
 			}
 			
+			#errors {
+				margin-top: 520px;
+			}
+			
+			/* hide spinner in input box */
+			input[type="number"]::-webkit-outer-spin-button,
+			input[type="number"]::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+			input[type="number"] {
+				-moz-appearance: textfield;
+			}
 		</style>
 	</head>
 	<body>
@@ -61,7 +81,7 @@
 		<div class="row" id="instructions">
 			<div class="col-md-6 col-md-offset-1">
 				<h1>Pie Charts Study</h1>
-				<p>This study examines how well people can read two- and three-dimensional pie charts.
+				<p>This study examines how well people can read different pie charts.
 					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
 				<div id="cond2">
 					<p><strong>Here's how to read these charts: Look at how much area is blue compared to the entire chart.
@@ -81,29 +101,42 @@
 				<div class="radio"><label><input type="radio"> Angle</label></div>
 				<div class="radio"><label><input type="radio"> Area</label></div>
 				<div class="radio"><label><input type="radio"> Arc Length</label></div>
-				<p class="bg-danger" id="wrong">Wrong! Please try again!</p>
-				<p class="bg-success" id="correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.<br/>
+				<p class="bg-danger error" id="wrong">Wrong! Please try again!</p>
+				<p class="bg-success error" id="correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.<br/>
 				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button></p>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-1" id="question">
-				<h4>What part of the whole (in percent) does the blue slice represent?</h4>
+				<h4>What part of the whole (in percent) does the <span class="blue">blue slice</span> represent?</h4>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-8" id="pie">
 			</div>
-			<div class="col-md-4" id="infoPanel">
-				<label>Central Angle: <span id="centralAngleVal"></span>&deg; <input type="range" min="1" max="359" value="30" id="centralAngle" oninput="redraw();"></label><br/>
-				<label>View Angle: <span id="viewAngleVal"></span>&deg; <input type="range" min="15" max="90" value="15" id="viewAngle" oninput="redraw();"></label><br/>
-				<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
-				<label>Body: <span id="bodyVal"></span><input type="range" min="0" max="50" step="5" value="20" id="bodyHeight" oninput="redraw();"></label><br />
+			<div class="col-md-offset-1 col-md-8" id="break">
+				<h1>Break Time!</h1>
+				<p>Please take a brief break to rest your eyes before you continue.</p>
+				<p>&nbsp;</p>
+				<button class="btn btn-primary pull-right" type="button" onclick="endBreak();">Continue</button>
+			</div>
+			<div class="col-md-4">
+				<div id="infoPanel">
+					<label>Central Angle: <span id="centralAngleVal"></span>&deg; <input type="range" min="1" max="359" value="30" id="centralAngle" oninput="redraw();"></label><br/>
+					<label>View Angle: <span id="viewAngleVal"></span>&deg; <input type="range" min="15" max="90" value="15" id="viewAngle" oninput="redraw();"></label><br/>
+					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
+					<label>Body: <span id="bodyVal"></span><input type="range" min="0" max="50" step="5" value="20" id="bodyHeight" oninput="redraw();"></label><br />
+					
+					Angle: <span id="angle"></span>&deg;<br/>
+					Projected: <span id="distortedAngle"></span>&deg;<br />
+					By Arc Length: <span id="angleByArc"></span>&deg;<br />
+					By Area: <span id="angleByArea"></span>&deg;<br />
+				</div>
 				
-				Angle: <span id="angle"></span>&deg;<br/>
-				Projected: <span id="distortedAngle"></span>&deg;<br />
-				By Arc Length: <span id="angleByArc"></span>&deg;<br />
-				By Area: <span id="angleByArea"></span>&deg;<br />
+				<div id="errors">
+					<p class="bg-danger error" id="outofrange">Please respond in percent (1-99)! Try again.</p>
+					<p class="bg-danger error" id="wrongpart">Please respond for the blue part of the pie! Try again.</p>
+				</div>
 			</div>
 		</div>
 		<div class="row">
