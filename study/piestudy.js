@@ -160,7 +160,9 @@ function showDemographics() {
 
 function startStudy() {
 
-	$('#demographics').hide();	
+	$('#demographics').hide();
+	$('#cond2question').hide();
+	
 	showStudyStuff();
 
 	var progressbar = d3.select('#progressbar');

@@ -30,7 +30,8 @@
 				color: steelblue;
 			}
 			
-			#demographics, #infoPanel, #studyPanel, #question, #thankyou, #cond2, #cond2question, #pie, #break {
+			#demographics, #infoPanel, #studyPanel, #question, #thankyou,
+			#cond2, #cond2question, #pie, #break, #cond2Wrong, #cond2Correct {
 				display: none;
 			}
 						
@@ -97,46 +98,46 @@
 				<p>Please answer the following questions. Your responses are only used to report summary statistics.
 				<div id="age"><strong>Your age:</strong>
 					<div id="ages">
-						<input type="radio" id="a1" name="age" value="18-24"> 18-24<!-- <br> -->
-						<input type="radio" id="a2" name="age" value="25-29"> 25-29<!-- <br> -->
-						<input type="radio" id="a2" name="age" value="30-39"> 30-39<!-- <br> -->
-						<input type="radio" id="a3" name="age" value="40-49"> 40-49<!-- <br> -->
-						<input type="radio" id="a4" name="age" value="50-59"> 50-59<!-- <br> -->
-						<input type="radio" id="a5" name="age" value="60+"> 60+<!-- <br> -->
+						<input type="radio" id="a1" name="age" value="18-24"> 18-24 &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="a2" name="age" value="25-29"> 25-29 &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="a2" name="age" value="30-39"> 30-39 &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="a3" name="age" value="40-49"> 40-49 &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="a4" name="age" value="50-59"> 50-59 &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="a5" name="age" value="60+"> 60+ &nbsp;&nbsp;&nbsp;
 						<input type="radio" id="a6" name="age" value="Unspecified"> Unspecified
 					</div>
 				</div>
 				<br>
 				<div id="sex"><strong>Your gender:</strong>
 					<div id="sexes">
-						<input type="radio" id="s1" name="sex" value="Male"> Male<!-- <br> -->
-						<input type="radio" id="s2" name="sex" value="Female"> Female<!-- <br> -->
+						<input type="radio" id="s1" name="sex" value="Male"> Male &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="s2" name="sex" value="Female"> Female &nbsp;&nbsp;&nbsp;
 						<input type="radio" id="s3" name="sex" value="Unspecified"> Unspecified
 					</div>
 				</div>
 				<br>
 				<div id="degree"><strong>Highest degree obtained:</strong>
 					<div id="degrees">
-						<input type="radio" id="d1" name="degree" value="High School"> High School<!-- <br> -->
-						<input type="radio" id="d2" name="degree" value="Bachelors"> Bachelors<!-- <br> -->
-						<input type="radio" id="d3" name="degree" value="Masters"> Masters<!-- <br> -->
-						<input type="radio" id="d4" name="degree" value="PhD"> PhD<!-- <br> -->
+						<input type="radio" id="d1" name="degree" value="High School"> High School &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="d2" name="degree" value="Bachelors"> Bachelors &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="d3" name="degree" value="Masters"> Masters &nbsp;&nbsp;&nbsp;
+						<input type="radio" id="d4" name="degree" value="PhD"> PhD &nbsp;&nbsp;&nbsp;
 						<input type="radio" id="d5" name="degree" value="Other"> Other
 					</div>
 				</div>
 
-				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="startStudy();">Start Study</button>
+				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="potentialNagScreen();">Start Study</button>
 			</div>
 		</div>
 		<div class="row" id="cond2question">
-			<div class="col-md-7 col-md-offset-1">
+			<div class="col-md-6 col-md-offset-1">
 				<h1>How are you supposed to read the charts?</h1>
-				<div class="radio"><label><input type="radio"> Angle</label></div>
-				<div class="radio"><label><input type="radio"> Area</label></div>
-				<div class="radio"><label><input type="radio"> Arc Length</label></div>
-				<p class="bg-danger error" id="wrong">Wrong! Please try again!</p>
-				<p class="bg-success error" id="correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.<br/>
-				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button></p>
+				<div class="radio"><label><input type="radio" name="how" value="angle"> Angle</label></div>
+				<div class="radio"><label><input type="radio" name="how" value="area"> Area</label></div>
+				<div class="radio"><label><input type="radio" name="how" value="arc"> Arc Length</label></div>
+				<p class="bg-danger error" id="cond2Wrong">Wrong! Please try again!</p>
+				<p class="bg-success error" id="cond2Correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.</p><br/>
+				<button class="btn btn-primary pull-right" id="cond2Start" type="button" disabled="disabled" onclick="startStudy();">Start Study</button></p>
 			</div>
 		</div>
 		<div class="row">
@@ -237,6 +238,26 @@
 				}
 			}
 
+			function validateHow(answer) {
+				if (answer === 'area') {
+					$('#cond2Wrong').hide();
+					$('#cond2Correct').show();
+					$('#cond2Start').prop('disabled', false);
+				} else {
+					$('#cond2Wrong').show();
+					$('#cond2Correct').hide();
+					$('#cond2Start').prop('disabled', true);					
+				}
+			}
+
+			function potentialNagScreen() {
+				if (window.location.hash === '#cond2') {
+					$('#demographics').hide();
+					$('#cond2question').show();
+				} else {
+					startStudy();
+				}
+			}
 
 			if (window.location.hash === '#panel') {
 				$('#infoPanel').show();
@@ -267,7 +288,11 @@
 
 				d3.selectAll('input')
 					.filter(function(d) { return this.name === 'degree' ? this : null; })
-					.on('change', function() { demographics.degree = this.value; validateDemographics(); });				
+					.on('change', function() { demographics.degree = this.value; validateDemographics(); });
+				
+				d3.selectAll('input')
+					.filter(function(d) { return this.name === 'how' ? this : null; })
+					.on('change', function() { validateHow(this.value); });			
 			}
 			
 		</script>
