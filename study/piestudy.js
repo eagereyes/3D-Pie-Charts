@@ -127,6 +127,7 @@ function updatePie() {
 	var trial = trials[trialIndex];
 	draw3DPie(drawInfo, rad(trial.centralAngle), rad(trial.viewAngle), rad(trial.rotation), HEIGHT/2, trial.height);
 	trials[trialIndex].startTime = (new Date()).getTime();
+	$('#percent').focus();
 }
 
 function takeBreak() {
