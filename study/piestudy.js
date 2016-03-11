@@ -84,12 +84,14 @@ function nextStep() {
 	if (response < 1 || response > 99) {
 		$('#outofrange').show();
 		$('#percent').val('');
-		trial[trialIndex].issue = 'range';
+		$('#nextBtn').prop('disabled', true);
+		trials[trialIndex].issue = 'range';
 		return
 	} else if (trialIndex < 10 && Math.abs(response-trials[trialIndex].value) > Math.abs(response-(100-trials[trialIndex].value))) {
 		$('#wrongpart').show();
 		$('#percent').val('');
-		trial[trialIndex].issue = 'opposite';
+		$('#nextBtn').prop('disabled', true);
+		trials[trialIndex].issue = 'opposite';
 		return
 	}
 		
@@ -99,6 +101,7 @@ function nextStep() {
 	trials[trialIndex].answer = response;
 		
 	$('#percent').val('');
+	$('#nextBtn').prop('disabled', true);
 	d3.select('#progress-'+trialIndex).classed('complete', true);
 
 	trialIndex++;

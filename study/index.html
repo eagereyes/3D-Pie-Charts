@@ -61,6 +61,10 @@
 				margin-top: 520px;
 			}
 			
+			label {
+				font-weight: normal;
+			}
+			
 			/* hide spinner in input box */
 			input[type="number"]::-webkit-outer-spin-button,
 			input[type="number"]::-webkit-inner-spin-button {
@@ -84,8 +88,9 @@
 					<p><strong>Here's how to read these charts: Look at how much area is blue compared to the entire chart.
 						3D pie charts distort the angle of the slice, but not the area as a fraction of the whole! Your accuracy will be much higher if you go by area rather than by angle.</strong></p>
 				</div>
-				<p>Please answer as accurately as possible. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
+				<p>Please answer as accurately as possible, but don't dwell on individual charts. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
 				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
+				<p>In most browsers, you can enter a number into the answer field and then hit <em>Return</em> or <em>Enter</em> to advance to the next question. That is the faster way, but you can also click the <p>Next</p> button.</p>
 				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
 				<p>&nbsp;</p>
@@ -98,31 +103,31 @@
 				<p>Please answer the following questions. Your responses are only used to report summary statistics.
 				<div id="age"><strong>Your age:</strong>
 					<div id="ages">
-						<input type="radio" id="a1" name="age" value="18-24"> 18-24 &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a2" name="age" value="25-29"> 25-29 &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a2" name="age" value="30-39"> 30-39 &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a3" name="age" value="40-49"> 40-49 &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a4" name="age" value="50-59"> 50-59 &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a5" name="age" value="60+"> 60+ &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="a6" name="age" value="Unspecified"> Unspecified
+						<label><input type="radio" id="a1" name="age" value="18-24"> 18-24</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a2" name="age" value="25-29"> 25-29</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a2" name="age" value="30-39"> 30-39</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a3" name="age" value="40-49"> 40-49</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a4" name="age" value="50-59"> 50-59</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a5" name="age" value="60+"> 60+</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="a6" name="age" value="Unspecified"> Unspecified</label>
 					</div>
 				</div>
 				<br>
 				<div id="sex"><strong>Your gender:</strong>
 					<div id="sexes">
-						<input type="radio" id="s1" name="sex" value="Male"> Male &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="s2" name="sex" value="Female"> Female &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="s3" name="sex" value="Unspecified"> Unspecified
+						<label><input type="radio" id="s1" name="sex" value="Male"> Male</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="s2" name="sex" value="Female"> Female</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="s3" name="sex" value="Unspecified"> Unspecified</label>
 					</div>
 				</div>
 				<br>
 				<div id="degree"><strong>Highest degree obtained:</strong>
 					<div id="degrees">
-						<input type="radio" id="d1" name="degree" value="High School"> High School &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="d2" name="degree" value="Bachelors"> Bachelors &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="d3" name="degree" value="Masters"> Masters &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="d4" name="degree" value="PhD"> PhD &nbsp;&nbsp;&nbsp;
-						<input type="radio" id="d5" name="degree" value="Other"> Other
+						<label><input type="radio" id="d1" name="degree" value="High School"> High School</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="d2" name="degree" value="Bachelors"> Bachelors</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="d3" name="degree" value="Masters"> Masters</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="d4" name="degree" value="PhD"> PhD</label> &nbsp;&nbsp;&nbsp;
+						<label><input type="radio" id="d5" name="degree" value="Other"> Other</label>
 					</div>
 				</div>
 
@@ -180,7 +185,8 @@
 		</div>
 		<div class="row">
 			<div class="col-md-offset-8 col-md-4" id="studyPanel">
-				<label>Value: <input type="number" id="percent" onchange="nextStep();" min="1" max="99">%</label>
+				<label>Value: <input type="number" id="percent" onchange="nextStep();" oninput="validatePercent(this.value);" min="1" max="99">%</label>
+				<button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep();" disabled="disabled">Next</button>
 			</div>
 		</div>
 		<div class="row">
@@ -257,6 +263,10 @@
 				} else {
 					startStudy();
 				}
+			}
+
+			function validatePercent(value) {
+				$('#nextBtn').prop('disabled', value == '');
 			}
 
 			if (window.location.hash === '#panel') {
