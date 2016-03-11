@@ -77,7 +77,8 @@ makePredictions <- function() {
 
 setwd('/Users/rkosara/Dropbox (Tableau)/Research/3D Pie Charts')
 data <- read.csv('pilot-data.csv')
-data <- transform(data, logError = log2(abs(answer-value)+1/8))
+data <- transform(data, logError = log2(abs(answer-value)+1/8),
+                  viewAngle = factor(viewAngle))
 
 dataAggregated = data %>%
   group_by(viewAngle, resultID) %>%
@@ -85,7 +86,7 @@ dataAggregated = data %>%
 
 ggplot(dataAggregated, aes(x=viewAngle, fill=factor(viewAngle))) +
      geom_violin(size=1, aes(
-         y=meanError, 
+         y=meanError,
          color=factor(viewAngle)),
-         show.legend = FALSE) + 
-     labs(x = "Chart Type", y = "Log Error")
+         show.legend = FALSE) +
+     labs(x = "View Angle", y = "Log Error")
