@@ -66,10 +66,14 @@ projectAngle <- function(alpha, phi, rho) {
   list(phiProj=centralProj, rhoProj = rotationProj)
 }
 
-angles <- sapply(1:359, deg2rad)
-area <- sapply(angles, function(phi) { ellipseArea(1, .5, phi)})
-arc <- sapply(angles, function(phi) { ellipseArcLength(1, .5, phi)})
-predictions <- data.frame(angles, arc, area)
+makePredictions <- function() {
+  angles <- sapply(1:359, deg2rad)
+  area <- sapply(angles, function(phi) { ellipseArea(1, .5, phi)})
+  arc <- sapply(angles, function(phi) { ellipseArcLength(1, .5, phi)})
+  predictions <- data.frame(angles, arc, area)
+  
+  return(predictions)
+}
 
 setwd('/Users/rkosara/Dropbox (Tableau)/Research/3D Pie Charts')
 data <- read.csv('pilot-data.csv')
