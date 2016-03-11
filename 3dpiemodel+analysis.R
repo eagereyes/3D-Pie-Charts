@@ -1,4 +1,6 @@
 library('pracma')
+library('dplyr')
+library('ggplot2')
 
 # Return partially applied function calculating arc length as
 # function of t for ellipse with axes a and b.
@@ -64,7 +66,22 @@ projectAngle <- function(alpha, phi, rho) {
   list(phiProj=centralProj, rhoProj = rotationProj)
 }
 
-angle <- sapply(1:359, deg2rad)
+angles <- sapply(1:359, deg2rad)
 area <- sapply(angles, function(phi) { ellipseArea(1, .5, phi)})
 arc <- sapply(angles, function(phi) { ellipseArcLength(1, .5, phi)})
-predictions <- data.frame(angle, arc, area)
+predictions <- data.frame(angles, arc, area)
+
+setwd('/Users/rkosara/Dropbox (Tableau)/Research/3D Pie Charts')
+data <- read.csv('pilot-data.csv')
+data <- transform(data, logError = log2(abs(answer-value)+1/8))
+
+dataAggregated = data %>%
+  group_by(viewAngle, resultID) %>%
+  summarize(meanError = mean(logError))
+
+ggplot(dataAggregated, aes(x=viewAngle, fill=factor(viewAngle))) +
+     geom_violin(size=1, aes(
+         y=meanError, 
+         color=factor(viewAngle)),
+         show.legend = FALSE) + 
+     labs(x = "Chart Type", y = "Log Error")
