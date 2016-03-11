@@ -57,7 +57,8 @@ function makeTrials(resultID, condition, demographics) {
 						rotation: Math.floor(Math.random()*360),
 						age: demographics.age,
 						sex: demographics.sex,
-						degree: demographics.degree 
+						degree: demographics.degree,
+						issue: ''
 					};
 					
 					trials.push(trial);
@@ -83,10 +84,12 @@ function nextStep() {
 	if (response < 1 || response > 99) {
 		$('#outofrange').show();
 		$('#percent').val('');
+		trial[trialIndex].issue = 'range';
 		return
 	} else if (trialIndex < 10 && Math.abs(response-trials[trialIndex].value) > Math.abs(response-(100-trials[trialIndex].value))) {
 		$('#wrongpart').show();
 		$('#percent').val('');
+		trial[trialIndex].issue = 'opposite';
 		return
 	}
 		
