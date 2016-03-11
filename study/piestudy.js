@@ -138,6 +138,8 @@ function takeBreak() {
 function endBreak() {
 	inBreak = false;
 	$('#break').hide();
+	$('#percent').val('');
+	$('#nextBtn').prop('disabled', true);
 	showStudyStuff();
 	updatePie();
 }
