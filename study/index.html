@@ -30,14 +30,10 @@
 				color: steelblue;
 			}
 			
-			#infoPanel, #studyPanel, #question, #thankyou, #cond2, #cond2question {
+			#demographics, #infoPanel, #studyPanel, #question, #thankyou, #cond2, #cond2question, #pie, #break {
 				display: none;
 			}
-			
-			#pie, #break {
-				display: none;
-			}
-			
+						
 			#topSpacing {
 				margin-top: 40px;
 			}
@@ -92,7 +88,44 @@
 				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
 				<p>&nbsp;</p>
-				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Start Study</button>
+				<button class="btn btn-primary pull-right" type="button" onclick="showDemographics();">Let's Go!</button>
+			</div>
+		</div>
+		<div class="row" id="demographics">
+			<div class="col-md-6 col-md-offset-1">
+				<h1>Brief Demographic Survey</h1>
+				<p>Please answer the following questions. Your responses are only used to report summary statistics.
+				<div id="age"><strong>Your age:</strong>
+					<div id="ages">
+						<input type="radio" id="a1" name="age" value="18-24"> 18-24<!-- <br> -->
+						<input type="radio" id="a2" name="age" value="25-29"> 25-29<!-- <br> -->
+						<input type="radio" id="a2" name="age" value="30-39"> 30-39<!-- <br> -->
+						<input type="radio" id="a3" name="age" value="40-49"> 40-49<!-- <br> -->
+						<input type="radio" id="a4" name="age" value="50-59"> 50-59<!-- <br> -->
+						<input type="radio" id="a5" name="age" value="60+"> 60+<!-- <br> -->
+						<input type="radio" id="a6" name="age" value="Unspecified"> Unspecified
+					</div>
+				</div>
+				<br>
+				<div id="sex"><strong>Your gender:</strong>
+					<div id="sexes">
+						<input type="radio" id="s1" name="sex" value="Male"> Male<!-- <br> -->
+						<input type="radio" id="s2" name="sex" value="Female"> Female<!-- <br> -->
+						<input type="radio" id="s3" name="sex" value="Unspecified"> Unspecified
+					</div>
+				</div>
+				<br>
+				<div id="degree"><strong>Highest degree obtained:</strong>
+					<div id="degrees">
+						<input type="radio" id="d1" name="degree" value="High School"> High School<!-- <br> -->
+						<input type="radio" id="d2" name="degree" value="Bachelors"> Bachelors<!-- <br> -->
+						<input type="radio" id="d3" name="degree" value="Masters"> Masters<!-- <br> -->
+						<input type="radio" id="d4" name="degree" value="PhD"> PhD<!-- <br> -->
+						<input type="radio" id="d5" name="degree" value="Other"> Other
+					</div>
+				</div>
+
+				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="startStudy();">Start Study</button>
 			</div>
 		</div>
 		<div class="row" id="cond2question">
@@ -119,6 +152,11 @@
 				<p>Please take a brief break to rest your eyes before you continue.</p>
 				<p>&nbsp;</p>
 				<button class="btn btn-primary pull-right" type="button" onclick="endBreak();">Continue</button>
+			</div>
+			<div class="col-md-8 col-md-offset-1" id="thankyou">
+				<h1>Thank you!</h1>
+				<p>Thank you for completing the study! Please paste this code into the text field on Mechnical Turk:</p>
+				<h2 id="code"></h2>
 			</div>
 			<div class="col-md-4">
 				<div id="infoPanel">
@@ -149,14 +187,6 @@
 			</div>
 		</div>
 
-		<div class="row" id="thankyou">
-			<div class="col-md-11 col-md-offset-1">
-				<h1>Thank you!</h1>
-				<p>Thank you for completing the study! Please paste this code into the text field on Mechnical Turk:</p>
-				<h2 id="code"></h2>
-			</div>
-		</div>
-
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="js/jquery-1.12.0.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -165,6 +195,8 @@
 		<script src="piestudy.js"></script>
 		<script>
 			var drawInfo = init();
+			
+			var trials;
 			
 			function rad(degrees) {
 				return degrees*Math.PI/180;
@@ -196,8 +228,15 @@
 				$('#distortedAngle').text(deg(predictions.angleDistorted).toFixed(0));
 				$('#angleByArc').text(deg(predictions.angleByArc).toFixed(0));
 				$('#angleByArea').text(deg(predictions.angleByArea).toFixed(0));
-
 			}
+
+			function validateDemographics() {
+				if (demographics.age && demographics.sex && demographics.degree) {
+					trials = makeTrials(resultID, window.location.hash.substr(1), demographics);
+					$('#doneDemographics').prop('disabled', false);
+				}
+			}
+
 
 			if (window.location.hash === '#panel') {
 				$('#infoPanel').show();
@@ -215,8 +254,20 @@
 				var resultID = d + 'x' + s.substr(s.length-6);
 
 				$('#code').text(resultID);
+				
+				var demographics = {};
+				
+				d3.selectAll('input')
+					.filter(function(d) { return this.name === 'age' ? this : null; })
+					.on('change', function() { demographics.age = this.value; validateDemographics(); });
 
-				var trials = makeTrials(resultID, window.location.hash.substr(1));
+				d3.selectAll('input')
+					.filter(function(d) { return this.name === 'sex' ? this : null; })
+					.on('change', function() { demographics.sex = this.value; validateDemographics(); });
+
+				d3.selectAll('input')
+					.filter(function(d) { return this.name === 'degree' ? this : null; })
+					.on('change', function() { demographics.degree = this.value; validateDemographics(); });				
 			}
 			
 		</script>

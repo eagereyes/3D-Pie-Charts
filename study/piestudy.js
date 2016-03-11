@@ -15,11 +15,13 @@ var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit_csv.php';
 
 var trialIndex = 0;
 
+var inBreak = false;
+
 /**
  * Make the combinations for the study trials. All angles here are in degrees for nicer logging.
  * Need to be converted to radians for drawing.
  */
-function makeTrials(resultID, condition) {
+function makeTrials(resultID, condition, demographics) {
 
 	d3.shuffle(NUMS_LOW);
 	d3.shuffle(NUMS_MID);
@@ -52,7 +54,10 @@ function makeTrials(resultID, condition) {
 						height: HEIGHTS[j],
 						value: value,
 						centralAngle: value/100.*360,
-						rotation: Math.floor(Math.random()*360)
+						rotation: Math.floor(Math.random()*360),
+						age: demographics.age,
+						sex: demographics.sex,
+						degree: demographics.degree 
 					};
 					
 					trials.push(trial);
@@ -67,6 +72,9 @@ function makeTrials(resultID, condition) {
 }
 
 function nextStep() {
+
+	if (inBreak) // otherwise, you can keep hitting return to advance during break
+		return;
 
 	$('.error').hide();
 
@@ -116,11 +124,13 @@ function updatePie() {
 }
 
 function takeBreak() {
+	inBreak = true;
 	hideStudyStuff();
 	$('#break').show();
 }
 
 function endBreak() {
+	inBreak = false;
 	$('#break').hide();
 	showStudyStuff();
 	updatePie();
@@ -140,10 +150,14 @@ function hideStudyStuff() {
 	$('#studyPanel').hide();
 }
 
+function showDemographics() {
+	$('#instructions').hide();
+	$('#demographics').show();
+}
 
 function startStudy() {
-	$('#instructions').hide();
-	
+
+	$('#demographics').hide();	
 	showStudyStuff();
 
 	var progressbar = d3.select('#progressbar');
