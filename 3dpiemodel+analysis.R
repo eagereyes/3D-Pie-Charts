@@ -23,19 +23,15 @@ ellipseArcLength <- function(a, b, theta, rho = 0) {
 # Calculate ellipse area for a given angle by summing up quarters first
 # then adding the remaining portion
 ellipseAreaAux <- function(a, b, theta) {
-	area <- 0
-	quarters <- 0
-	while (theta > pi/2) {
-		area = area + a*b*pi/4
-		theta = theta - pi/2
-		quarters = quarters + 1
-	}
-	
-	if (quarters %% 2 == 0) {
-		area + a*b*pi/4 - .5*a*b*atan(a*tan(pi/2-theta)/b)
-	} else {
-		area + .5*a*b*atan(a*tan(theta)/b)
-	}
+
+	quarters <- theta / (pi/2)
+	area <- a*b*pi/4 * quarters
+
+	theta = theta - quarters*pi/2
+		
+	area + ifelse(quarters %% 2 == 0,
+				  a*b*pi/4 - .5*a*b*atan(a*tan(pi/2-theta)/b),
+				  .5*a*b*atan(a*tan(theta)/b))
 }
 
 # Calculate area for ellipse with axes a and b for a slice with
@@ -94,6 +90,8 @@ data <- cbind(data, projections)
 data <- within(data, {
 				logError = log2(abs(answer-value)+1/8)
 				verticalFactor = sin(rad(viewAngle))
+				fraction = value/100
+				projFraction = thetaProj/(2*pi)
 				areaFraction = ellipseAreaFraction(1, verticalFactor, thetaProj, rhoProj)
 				viewAngle = factor(viewAngle)
 				})
