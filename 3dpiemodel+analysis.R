@@ -2,6 +2,9 @@ library('pracma')
 library('dplyr')
 library('ggplot2')
 
+# radius of the pie chart in pixels
+pieRadius <- 300
+
 # Turn degrees into radians
 rad <- function(degrees) {
 	degrees/180*pi;
@@ -93,6 +96,7 @@ makePredictions <- function() {
 setwd('/Users/rkosara/Dropbox (Tableau)/Research/3D Pie Charts')
 data <- read.csv('results-3dpiestudy.csv')
 
+# Add thetaProj and rhoProj columns (both in radians)
 projections <- with(data, projectAngle(rad(viewAngle), rad(centralAngle), rad(rotation)))
 data <- cbind(data, projections)
 
@@ -101,8 +105,8 @@ data <- within(data, {
 				verticalFactor = sin(rad(viewAngle))
 				fraction = value/100
 				projFraction = thetaProj/(2*pi)
-				areaFraction = ellipseAreaFraction(1, verticalFactor, thetaProj, rhoProj)
-#				arcFraction = ellipseArcFraction(1, verticalFactor, thetaProj, rhoProj)
+				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj)
+#				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj)
 				viewAngle = factor(viewAngle)
 				})
 
