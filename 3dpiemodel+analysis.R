@@ -9,15 +9,24 @@ rad <- function(degrees) {
 
 # Return partially applied function calculating arc length as
 # function of t for ellipse with axes a and b.
-ellipseArc <- function(a, b) {
+ellipseArcFunc <- function(a, b) {
 	function(t) c(a*cos(t), b*sin(t))
 }
 
 # Calculate arc length of ellipse from angle rho to theta
-# for ellipse with axes a and b using numerical integration
+# for ellipse given the arc function (created by ellipseArcFunc)
 # Uses pracma package http://www.inside-r.org/packages/cran/pracma/docs/arclength
-ellipseArcLength <- function(a, b, theta, rho = 0) {
-	arclength(ellipseArc(a, b), rho, rho+theta, tol = 1e-10)$length
+ellipseArcLength <- function(arcFunc, theta, rho = 0) {
+	arclength(arcFunc, rho, rho+theta, tol = 1e-10)$length
+}
+
+# Calculate the fraction of the ellipse by arc length that's taken up by the slice
+ellipseArcFraction <- function(a, b, theta, rho) {
+	localFunc <- function(eA, eB, t, r) {
+		arcFunc <- ellipseArcFunc(eA, eB)
+		ellipseArcLength(arcFunc, t, r)/ellipseArcLength(arcFunc, 2*pi, 0)
+	}
+	mapply(localFunc, a, b, theta, rho)
 }
 
 # Calculate ellipse area for a given angle by summing up quarters first
@@ -93,6 +102,7 @@ data <- within(data, {
 				fraction = value/100
 				projFraction = thetaProj/(2*pi)
 				areaFraction = ellipseAreaFraction(1, verticalFactor, thetaProj, rhoProj)
+#				arcFraction = ellipseArcFraction(1, verticalFactor, thetaProj, rhoProj)
 				viewAngle = factor(viewAngle)
 				})
 
