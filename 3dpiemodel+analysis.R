@@ -100,15 +100,15 @@ data <- read.csv('results-3dpiestudy.csv')
 projections <- with(data, projectAngle(rad(viewAngle), rad(centralAngle), rad(rotation)))
 data <- cbind(data, projections)
 
-data <- within(data, {
-				logError = log2(abs(answer-value)+1/8)
-				verticalFactor = sin(rad(viewAngle))
-				fraction = value/100
-				projFraction = thetaProj/(2*pi)
-				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj)
-#				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj)
+data <- mutate(data,
+				logError = log2(abs(answer-value)+1/8),
+				verticalFactor = sin(rad(viewAngle)),
+				fraction = value/100,
+				projFraction = thetaProj/(2*pi),
+				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
+#				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
 				viewAngle = factor(viewAngle)
-				})
+				)
 
 dataAggregated = data %>%
 	group_by(viewAngle, resultID, condition) %>%
