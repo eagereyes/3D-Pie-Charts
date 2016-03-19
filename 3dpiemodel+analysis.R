@@ -101,26 +101,35 @@ projections <- with(data, projectAngle(rad(viewAngle), rad(centralAngle), rad(ro
 data <- cbind(data, projections)
 
 data <- mutate(data,
-				logError = log2(abs(answer-value)+1/8),
+				error = answer-value,
+				absError = abs(error),
+				logError = log2(absError+1/8),
 				verticalFactor = sin(rad(viewAngle)),
 				fraction = value/100,
 				projFraction = thetaProj/(2*pi),
 				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
 #				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
+				threeDee = (viewAngle != 90), # TRUE if chart is 3D, FALSE if 2D
+				opposite = (abs(100-value-answer) < absError) & (abs(50-value) > 5),
 				viewAngle = factor(viewAngle)
 				)
 
-dataAggregated = data %>%
+write.csv(data, file='results-3dpiestudy-enriched.csv')
+
+dataFiltered <- filter(data, opposite == FALSE)
+
+dataAggregated = dataFiltered %>%
 	group_by(viewAngle, resultID, condition) %>%
 	summarize(meanError = mean(logError))
 
 # Error by view Angle for the two conditions
 ggplot(dataAggregated, aes(x=viewAngle, y=meanError, fill=factor(viewAngle))) +
 	geom_violin(size=1, aes(y=meanError, color=factor(viewAngle)), show.legend=FALSE) +
-	stat_summary(fun.y=mean, geom="point", shape=5, size=4, show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=5, size=3, show.legend=FALSE) +
 	labs(x = "View Angle", y = "Log Error") + facet_grid(condition ~ .)
 
-# t test between the aggregated means for condition 1 and 2
+# t test between the aggregated means for conditions 1 and 2
 cond1 <- subset(dataAggregated, condition=="cond1")$meanError
 cond2 <- subset(dataAggregated, condition=="cond2")$meanError
 t.test(cond1, cond2)
+
