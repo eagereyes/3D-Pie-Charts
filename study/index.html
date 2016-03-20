@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>3D Pies!</title>
+		<title>Pie Chart Study</title>
 		 <link href="css/bootstrap.min.css" rel="stylesheet">
 		<script src="js/d3.min.js" charset="utf-8"></script>
 		<script src="js/numbers.min.js"></script>
@@ -37,7 +37,7 @@
 			
 			.surfaceEllipse {
 				fill: black;
-				fill-opacity: .2;
+				fill-opacity: .1;
 			}
 			
 			.blue {
@@ -164,12 +164,18 @@
 				<svg width="800" height="600">
 					<defs>
 						<pattern id="bluePattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-							<!--<rect x="0" y="0" width="10" height="10" style="stroke: none; fill:#005480;" />-->
-							<circle cx="10" cy="10" r="5" style="stroke: none; fill:#005480;" />
+							<!--<circle cx="10" cy="10" r="9" style="stroke: none; fill:#005884;" />-->
+							<circle cx="0" cy="0" r="8" style="stroke: none; fill:#005884;" />
+							<circle cx="20" cy="0" r="8" style="stroke: none; fill:#005884;" />
+							<circle cx="20" cy="20" r="8" style="stroke: none; fill:#005884;" />
+							<circle cx="0" cy="20" r="8" style="stroke: none; fill:#005884;" />
 						</pattern>
 						<pattern id="grayPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-							<!--<rect x="0" y="0" width="10" height="10" style="stroke: none; fill:darkgray;" />-->
-							<circle cx="10" cy="10" r="5" style="stroke: none; fill:darkgray;" />
+							<!--<circle cx="10" cy="10" r="9" style="stroke: none; fill:#c0c0c0;" />-->
+							<circle cx="0" cy="0" r="8" style="stroke: none; fill:#c0c0c0;" />
+							<circle cx="20" cy="0" r="8" style="stroke: none; fill:#c0c0c0;" />
+							<circle cx="20" cy="20" r="8" style="stroke: none; fill:#c0c0c0;" />
+							<circle cx="0" cy="20" r="8" style="stroke: none; fill:#c0c0c0;" />
 						</pattern>
 						<linearGradient id="grayGradient" x1="0" x2="800" y1="0" y1="0" gradientUnits="userSpaceOnUse">
 							<stop offset="-25%" stop-color="darkgray" />
