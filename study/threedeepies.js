@@ -4,32 +4,39 @@ var WIDTH = 800;
 var HEIGHT = 600;
 
 function makeSVG() {
-	var svg = d3.select('#pie').append('svg')
-		.attr('width', WIDTH)
-		.attr('height', HEIGHT);
+	// var svg = d3.select('#pie').append('svg')
+	// 	.attr('width', WIDTH)
+	// 	.attr('height', HEIGHT);
+
+	var svg = d3.select('#pie').select('svg');
 
 	return svg;		
 }
 
-function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB) {
+function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue) {
 	var leftX = (rotation > Math.PI)?xA:(WIDTH/2-xRadius);
 	var leftY = (rotation > Math.PI)?yA:(HEIGHT/2);
 	
 	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(WIDTH/2+xRadius);
 	var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(HEIGHT/2);
 	
-	drawInfo.svg.append('path')
+	var path = drawInfo.svg.append('path')
 		.attr('d', 'M '+leftX+','+leftY+' '+
 		'L '+leftX+','+(leftY+body)+
 		'A '+xRadius+','+yRadius+' 0 0 0 '+rightX+','+(rightY+body)+' '+
-		'L '+rightX+','+rightY+' Z')
-		.attr('class', 'bluebody');
+		'L '+rightX+','+rightY+' Z');
+	
+	if (depthCue == 0) {
+		path.attr('class', 'bluebody');
+	} else {
+		path.style('fill', 'url(#blueGradient)');
+	}
 }
 
 /**
  * All angles in radians
  */
-function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body) {
+function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, depthCue) {
 
 	var xRadius = radius;
 	var yRadius = radius*Math.sin(viewAngle);
@@ -47,18 +54,23 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body) {
 
 		body *= 1-Math.sin(viewAngle);
 
-		drawInfo.svg.append('path')
+		var path = drawInfo.svg.append('path')
 			.attr('d', 'M '+(WIDTH/2-xRadius)+','+(HEIGHT/2)+' '+
 			'L '+(WIDTH/2-xRadius)+','+(HEIGHT/2+body)+
 			'A '+xRadius+','+yRadius+' 0 0 0 '+(WIDTH/2+xRadius)+','+(HEIGHT/2+body)+' '+
-			'L '+(WIDTH/2+xRadius)+','+(HEIGHT/2)+' Z')
-			.attr('class', 'body');
-
+			'L '+(WIDTH/2+xRadius)+','+(HEIGHT/2)+' Z');
+			
+		if (depthCue == 0) {
+			path.attr('class', 'body');
+		} else {
+			path.style('fill', 'url(#grayGradient)');
+		}
+		
 		if (rotation+centralAngle > Math.PI) {
-			drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB);
+			drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue);
 			
 			if (rotation+centralAngle > 3*Math.PI) {
-				drawBody(Math.PI, rotation+centralAngle-3*Math.PI, body, xRadius, yRadius, xA, yA, xB, yB);				
+				drawBody(Math.PI, rotation+centralAngle-3*Math.PI, body, xRadius, yRadius, xA, yA, xB, yB, depthCue);
 			}
 		}
 	}
@@ -70,12 +82,53 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body) {
 		.attr('ry', yRadius)
 		.attr('class', 'grayslice');
 
+	if (depthCue == 1) {
+		drawInfo.svg.append('ellipse')
+			.attr('cx', WIDTH/2)
+			.attr('cy', HEIGHT/2)
+			.attr('rx', xRadius)
+			.attr('ry', yRadius)
+			.attr('class', 'graypattern');
+	}
+
 	drawInfo.svg.append('path')
 		.attr('d', 'M '+(WIDTH/2)+','+(HEIGHT/2)+' '+
 		'L '+xB+','+yB+' '+
 		'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 		xA+','+yA+' Z')
 		.attr('class', 'blueslice');
+
+	if (depthCue == 1) {
+		drawInfo.svg.append('path')
+			.attr('d', 'M '+(WIDTH/2)+','+(HEIGHT/2)+' '+
+			'L '+xB+','+yB+' '+
+			'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
+			xA+','+yA+' Z')
+			.attr('class', 'bluepattern');
+			
+		drawInfo.svg.selectAll('pattern')
+			.attr('patternTransform', 'scale(1 '+Math.sin(viewAngle)+') rotate(45)');
+	} else if (depthCue == 2) {
+		var surfaceEllipse = d3.svg.arc()
+			.startAngle(0)
+			.endAngle(2*Math.PI)
+			.innerRadius(xRadius*.2)
+			.outerRadius(xRadius*.4);
+		
+		drawInfo.svg.append('path')
+			.attr('d', surfaceEllipse())
+			.attr('class', 'surfaceEllipse')
+			.attr('transform', 'translate('+WIDTH/2+' '+HEIGHT/2+') scale(1 '+Math.sin(viewAngle)+')');
+
+		surfaceEllipse
+			.innerRadius(xRadius*.6)
+			.outerRadius(xRadius*.8);
+		
+		drawInfo.svg.append('path')
+			.attr('d', surfaceEllipse())
+			.attr('class', 'surfaceEllipse')
+			.attr('transform', 'translate('+WIDTH/2+' '+HEIGHT/2+') scale(1 '+Math.sin(viewAngle)+')');
+	}
 }
 
 function ellipseArea(a, b, angle) {
