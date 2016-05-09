@@ -19,7 +19,7 @@ ellipseArcFunc <- function(a, b) {
 # Calculate arc length of ellipse from angle rho to theta
 # for ellipse given the arc function (created by ellipseArcFunc)
 # Uses pracma package http://www.inside-r.org/packages/cran/pracma/docs/arclength
-ellipseArcLength <- function(arcFunc, theta, rho = 0) {
+ellipseArcLengthAux <- function(arcFunc, theta, rho) {
 	arclength(arcFunc, rho, rho+theta, tol = 1e-10)$length
 }
 
@@ -27,28 +27,36 @@ ellipseArcLength <- function(arcFunc, theta, rho = 0) {
 ellipseArcFraction <- function(a, b, theta, rho) {
 	localFunc <- function(eA, eB, t, r) {
 		arcFunc <- ellipseArcFunc(eA, eB)
-		ellipseArcLength(arcFunc, t, r)/ellipseArcLength(arcFunc, 2*pi, 0)
+		ellipseArcLengthAux(arcFunc, t, r)/ellipseArcLengthAux(arcFunc, 2*pi, 0)
 	}
 	mapply(localFunc, a, b, theta, rho)
+}
+
+ellipseArcLength <- function(a, b, theta, rho) {
+	localFunc <- function(eA, eB, t, r) {
+		arcFunc <- ellipseArcFunc(eA, eB)
+		ellipseArcLengthAux(arcFunc, t, r)
+	}
+	localFunc(a, b, theta, rho)
 }
 
 # Calculate ellipse area for a given angle by summing up quarters first
 # then adding the remaining portion
 ellipseAreaAux <- function(a, b, theta) {
 
-	quarters <- theta / (pi/2)
+	quarters <- theta %/% (pi/2)
 	area <- a*b*pi/4 * quarters
 
-	theta = theta - quarters*pi/2
-		
-	area + ifelse(quarters %% 2 == 0,
+	theta <- theta - quarters*pi/2
+
+	return(area + ifelse(quarters %% 2 == 0,
 				  a*b*pi/4 - .5*a*b*atan(a*tan(pi/2-theta)/b),
-				  .5*a*b*atan(a*tan(theta)/b))
+				  .5*a*b*atan(a*tan(theta)/b)))
 }
 
 # Calculate area for ellipse with axes a and b for a slice with
 # angle theta and rotation rho.
-ellipseAreaSlice <- function(a, b, theta, rho = 0) {
+ellipseAreaSlice <- function(a, b, theta, rho) {
 	ellipseAreaAux(a, b, rho+theta) - ellipseAreaAux(a, b, rho)
 }
 
@@ -81,15 +89,43 @@ projectAngle <- function(alpha, theta, rho) {
 
 	centralProj <- ifelse(centralProj < 0,  centralProj + 2*pi, centralProj)
 	
-	list(thetaProj=centralProj, rhoProj = rotationProj)
+	list(thetaProj = centralProj, rhoProj = rotationProj)
+}
+
+classifyDirection <- function(bisectorAngle) {
+	ifelse((bisectorAngle > 30) & (bisectorAngle < 150), 'back',
+		   ifelse ((bisectorAngle > 210) & (bisectorAngle < 330),
+		   'front', 'side'))
+}
+
+cond1 <- function(data) {
+	subset(data, condition=="cond1")
+}
+
+cond2 <- function(data) {
+	subset(data, condition=="cond2")
 }
 
 makePredictions <- function() {
-	angles <- sapply(1:359, deg2rad)
-	area <- sapply(angles, function(theta) { ellipseAreaSlice(1, .5, theta)})
-	arc <- sapply(angles, function(theta) { ellipseArcLength(1, .5, theta)})
-	predictions <- data.frame(angles, arc, area)
+	viewAngle <- c()
+	theta <- c()
+	thetaProj <- c()
+	rhoProj <- c()
+	area <- c()
+	arc <- c()
+	angles <- deg2rad(1:359)
+	for (alpha in deg2rad(c(90, 60, 30, 15))) {
+		verticalFactor <- sin(alpha)
+		anglesProj <- projectAngle(alpha, angles, 0)
+		viewAngle <- append(viewAngle, rep_len(alpha, length(angles)))
+		theta <- append(theta, angles)
+		thetaProj <- append(thetaProj, anglesProj$thetaProj)
+		rhoProj <- append(rhoProj, anglesProj$rhoProj)
+		area <- append(area, ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, anglesProj$theta, 0))
+		arc <- append(arc, ellipseArcFraction(pieRadius, pieRadius*verticalFactor, anglesProj$theta, 0))
+	}
   
+	predictions <- data.frame(viewAngle=factor(viewAngle), theta, thetaProj, rhoProj, area, arc)
 	return(predictions)
 }
 
@@ -100,6 +136,8 @@ data <- read.csv('results-3dpiestudy.csv')
 projections <- with(data, projectAngle(rad(viewAngle), rad(centralAngle), rad(rotation)))
 data <- cbind(data, projections)
 
+# Why are projFraction and areaFraction the same?
+# areaFraction should be linear with value and centralAngle
 data <- mutate(data,
 				error = answer-value,
 				absError = abs(error),
@@ -111,25 +149,191 @@ data <- mutate(data,
 #				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
 				threeDee = (viewAngle != 90), # TRUE if chart is 3D, FALSE if 2D
 				opposite = (abs(100-value-answer) < absError) & (abs(50-value) > 5),
-				viewAngle = factor(viewAngle)
-				)
+				bisectorAngle = rotation+centralAngle/2,
+				direction = classifyDirection(bisectorAngle),
+				viewAngle = factor(viewAngle, levels=c(90, 60, 30, 15))
+			)
 
 write.csv(data, file='results-3dpiestudy-enriched.csv')
 
-dataFiltered <- filter(data, opposite == FALSE)
+dataFiltered <- data %>%
+	# Remove responses that were likely for the other slice
+	filter(opposite == FALSE) # %>%
+	# Remove the two extreme outliers, one from each condition
+#	filter(resultID != '1457717965741x399922', resultID != '1457717878733x902968')
 
-dataAggregated = dataFiltered %>%
-	group_by(viewAngle, resultID, condition) %>%
-	summarize(meanError = mean(logError))
+baseline <- dataFiltered %>%
+	filter(viewAngle == 90) %>%
+	group_by(resultID) %>%
+	summarize(AbsErrorBaseline = mean(absError))
 
-# Error by view Angle for the two conditions
-ggplot(dataAggregated, aes(x=viewAngle, y=meanError, fill=factor(viewAngle))) +
+dataFiltered <- dataFiltered %>%
+	left_join(baseline, by = 'resultID') %>%
+	mutate(normalizedAbsError = absError/AbsErrorBaseline)
+
+dataAggregated <- dataFiltered %>%
+	group_by(viewAngle, resultID, condition, direction, height) %>%
+	summarize(meanLogError = mean(logError), meanError = mean(error),
+			  meanAbsError = mean(absError), normalizedAbsError = mean(normalizedAbsError))
+
+# Log error by view Angle for the two conditions
+ggplot(dataAggregated, aes(x=viewAngle, y=meanLogError, fill=factor(viewAngle))) +
 	geom_violin(size=1, aes(y=meanError, color=factor(viewAngle)), show.legend=FALSE) +
 	stat_summary(fun.y=mean, geom="point", shape=5, size=3, show.legend=FALSE) +
 	labs(x = "View Angle", y = "Log Error") + facet_grid(condition ~ .)
 
-# t test between the aggregated means for conditions 1 and 2
-cond1 <- subset(dataAggregated, condition=="cond1")$meanError
-cond2 <- subset(dataAggregated, condition=="cond2")$meanError
-t.test(cond1, cond2)
+# Error by view Angle for condition 1
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanError, fill=factor(viewAngle))) +
+	geom_violin(size=1, aes(y=meanError, color=factor(viewAngle)), show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend=FALSE) +
+	labs(x = "View Angle", y = "Error")
 
+# Error by view Angle for condition 2
+ggplot(cond2(dataAggregated), aes(x=viewAngle, y=meanError, fill=factor(viewAngle))) +
+	geom_violin(size=1, aes(y=meanError, color=factor(viewAngle)), show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend=FALSE) +
+	labs(x = "View Angle", y = "Error")
+
+# Error by view Angle for the two conditions
+ggplot(dataAggregated, aes(x=direction, y=meanError, fill=factor(direction))) +
+	geom_violin(size=1, aes(y=meanError, color=factor(direction)), show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=5, size=3, show.legend=FALSE) +
+	labs(x = "View Angle", y = "Log Error") + facet_grid(condition ~ viewAngle)
+
+# Error by body height for condition 1
+ggplot(cond1(dataAggregated), aes(x=factor(height), y=meanError)) +
+	geom_violin(size=1, aes(y=meanError), show.legend=FALSE, fill="gray") +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend=FALSE) +
+	labs(x = "Body Height", y = "Error")
+
+# t test between the aggregated means for conditions 1 and 2
+t.test(cond1(dataAggregated)$meanError, cond2(dataAggregated)$meanError)
+
+dataByUser <- dataFiltered %>%
+	group_by(resultID, condition) %>%
+	summarize(meanError = mean(absError))
+
+# Error by central angle
+ggplot(dataFiltered, aes(centralAngle, absError)) +
+	geom_point() + geom_smooth() + facet_grid(condition ~ .) + coord_polar()
+
+ggplot(dataFiltered, aes(centralAngle, absError)) +
+	geom_point() + geom_smooth() + facet_grid(viewAngle ~ condition) + coord_polar()
+
+
+# Error by bisector - flat as a pancake! Same with rotation.
+ggplot(dataFiltered, aes(bisectorAngle, absError)) +
+	geom_point() + geom_smooth() + facet_grid(condition ~ .) # + coord_polar()
+
+ggplot(dataFiltered, aes(rotation, absError)) +
+	geom_point() + geom_smooth() + facet_grid(viewAngle ~ condition) + # + coord_polar()
+	labs(x = "Rotation Angle", y = "Absolute Error")
+
+ggplot(dataFiltered, aes(bisectorAngle, absError)) + scale_x_continuous(breaks=seq(0, 530, 90)) +
+	geom_point() + geom_smooth() + facet_grid(viewAngle ~ .) + # + coord_polar()
+	labs(x = "Bisector Angle", y = "Absolute Error")
+
+# Error by represented value
+ggplot(dataFiltered, aes(value, absError)) +
+	geom_point() + geom_smooth() + facet_grid(viewAngle ~ .) + # + coord_polar()
+	labs(x = "Percentage", y = "Absolute Error")
+
+
+summary(lm(absError ~ bisectorAngle + condition, dataFiltered))
+
+# Value against answer, basic
+ggplot(dataFiltered, aes(value, answer)) +
+	geom_point() + geom_smooth() + facet_grid(condition ~ .)
+
+predictionsAggregated <- dataFiltered %>%
+	group_by(value, viewAngle) %>%
+	summarize(projFractionMin = min(projFraction)*100,
+			  projFractionMax = max(projFraction)*100,
+			  areaFractionMin = min(areaFraction)*100,
+			  areaFractionMax = max(areaFraction)*100 #,
+#			  arcFractionAgg = min(arcFraction)*100
+	)
+
+# Value against answer, with overlays
+ggplot(dataFiltered, aes(value, answer)) +
+	geom_ribbon(data = predictionsAggregated, inherit.aes = FALSE, aes(value, ymax=projFractionMax, ymin=projFractionMin), fill="gray") +
+# 	geom_line(data = predictionsAggregated, inherit.aes = FALSE, aes(value, projFractionMin)) +
+# 	geom_line(data = predictionsAggregated, inherit.aes = FALSE, aes(value, projFractionMax)) +
+	geom_line(data = predictionsAggregated, inherit.aes = FALSE, aes(value, areaFractionMin)) +
+	geom_line(data = predictionsAggregated, inherit.aes = FALSE, aes(value, areaFractionMax)) +
+#	geom_line(data = predictionsAggregated, inherit.aes = FALSE, aes(value, arcFractionAgg)) +
+	geom_point() +
+	facet_grid(viewAngle ~ condition)
+
+# Answer vs. projected angle - interesting step at .5
+ggplot(dataFiltered, aes(projFraction, answer)) +
+	geom_point() + geom_smooth() + facet_grid(viewAngle ~ condition)
+
+ggplot(dataFiltered, aes(projFraction, value)) +
+	geom_point() + facet_grid(viewAngle ~ condition)
+
+ggplot(dataByUser, aes(condition, meanError)) + geom_point() + geom_boxplot(alpha=.5)
+
+ggplot(dataFiltered, aes(value, areaFraction)) + geom_point() + facet_grid(viewAngle ~ .)
+
+## Create just the predictions and plot them
+# predictions <- makePredictions()
+
+# ggplot(predictions) +
+# 	geom_line(aes(theta, thetaProj, group=viewAngle), color="red") +
+# 	geom_line(aes(theta, area, group=viewAngle), color="blue") +
+# 	geom_line(aes(theta, arc, group=viewAngle), color="green")
+
+rmse <- dataFiltered %>%
+		group_by(condition) %>%
+		summarize(mseArea = sqrt(mean((answer-fraction*100)*(answer-fraction*100))),
+#				 mseArc = sqrt(mean((answer-arcFraction*100)*(answer-arcFraction*100))),
+				 mseAngle = sqrt(mean((answer-projFraction*100)*(answer-projFraction*100))))
+
+# Normalized error by view angle for the two conditions
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=normalizedAbsError, fill=factor(viewAngle))) +
+	geom_violin(size=1, aes(y=normalizedAbsError, color=factor(viewAngle)), show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend=FALSE) +
+	labs(x = "View Angle", y = "Normalized Absolute Error") # + facet_grid(condition ~ .)
+
+# Absolute error (not normalized) by view angle for the two conditions
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanAbsError, fill=factor(viewAngle))) +
+	geom_violin(size=1, aes(y=meanAbsError, color=factor(viewAngle)), show.legend=FALSE) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend=FALSE) +
+	labs(x = "View Angle", y = "Absolute Error") # + facet_grid(condition ~ .)
+
+# Errors by view angle and condition
+errors <- dataFiltered %>%
+	group_by(condition, viewAngle) %>%
+	summarize(abs=mean(absError), err=mean(error), sd=sd(error))
+
+ggplot(errors, aes(viewAngle, group=condition, color=condition)) + geom_line(aes(y=err)) + geom_line(aes(y=abs))
+
+# Errors by height and condition
+errors <- dataFiltered %>%
+	group_by(condition, height) %>%
+	summarize(abs=mean(normalizedAbsError), err=mean(error), sd=sd(error))
+
+# Modeling
+d <- dataFiltered %>% transform(viewAngle=unclass(viewAngle))
+model1 <- lm(answer ~ viewAngle + height + value + rotation, cond1(d))
+model2 <- lm(answer ~ viewAngle + height + value + rotation, cond2(d))
+
+# Experiment 2!
+summary(lm(answer ~ viewAngle + height + value + rotation, cond2(d)))
+summary(lm(error ~ viewAngle, cond2(d)))
+
+
+# Variation where we use Cook's D to remove highly influential values, rather than the opposites
+d <- data %>% transform(viewAngle=unclass(viewAngle))
+model1 <- lm(answer ~ viewAngle + height + value + rotation, cond1(d))
+influential <- influence.measures(model1)
+infRows <- which(apply(influential$is.inf, 1, any))
+dataCleaned <- d[-infRows,]
+summary(lm(answer ~ viewAngle + height + value + rotation, cond1(dataCleaned)))
+
+model2 <- lm(answer ~ viewAngle + height + value + rotation, cond2(d))
+influential <- influence.measures(model2)
+infRows <- which(apply(influential$is.inf, 1, any))
+dataCleaned <- d[-infRows,]
+summary(lm(answer ~ viewAngle + height + value + rotation, cond2(dataCleaned)))

@@ -63,30 +63,35 @@ def projectAngle(viewAngle, centralAngle, rotationAngle):
 
 	return  [centralProj, rotationProj]
 
+def main():
+	with open('3dpiepredictions.csv', 'wb') as outFile:
+		csvOut = csv.writer(outFile)
 
-with open('3dpiepredictions.csv', 'wb') as outFile:
-	csvOut = csv.writer(outFile)
+		csvOut.writerow(['viewAngle', 'aspect', 'rotation', 'rotationProjected', 'angle', 'angleProjected', 'arc', 'area'])
 
-	csvOut.writerow(['viewAngle', 'aspect', 'rotation', 'rotationProjected', 'angle', 'angleProjected', 'arc', 'area'])
-	
-	for viewAngle in range(90, 10, -15):
+		for viewAngle in range(90, 10, -15):
 
-		viewRadians = math.radians(viewAngle)
+			viewRadians = math.radians(viewAngle)
 
-		aspect = math.sin(viewRadians)
+			aspect = math.sin(viewRadians)
 
-		a = 1.
-		b = aspect
+			a = 1.
+			b = aspect
 
-		ellipseTotal = calcEllipse(a, b, math.pi*2, 0)
+			ellipseTotal = calcEllipse(a, b, math.pi*2, 0)
 
-		for centralAngle in [5, 10, 20, 30, 45, 60, 75, 90, 135, 180]:
+			for centralAngle in [5, 10, 20, 30, 45, 60, 75, 90, 135, 180]:
 
-			centralRadians = math.radians(centralAngle)
+				centralRadians = math.radians(centralAngle)
 
-			for rotation in range(360):
+				for rotation in range(360):
 
-				angleProjected, rotationProjected = projectAngle(viewRadians, centralRadians, math.radians(rotation))
+					angleProjected, rotationProjected = projectAngle(viewRadians, centralRadians, math.radians(rotation))
 
-				ellipse = calcEllipse(a, b, angleProjected, rotationProjected)
-				csvOut.writerow([viewAngle, aspect, rotation, math.degrees(rotationProjected), centralAngle, math.degrees(angleProjected), ellipse[0]/ellipseTotal[0], ellipse[1]/ellipseTotal[1]])
+					ellipse = calcEllipse(a, b, angleProjected, rotationProjected)
+
+					csvOut.writerow([viewAngle, aspect, rotation, math.degrees(rotationProjected), centralAngle, math.degrees(angleProjected), ellipse[0]/ellipseTotal[0], ellipse[1]/ellipseTotal[1]])
+
+if __name__ == "__main__":
+    # This will be called only when the Python file is invoked as a script.
+    main()
