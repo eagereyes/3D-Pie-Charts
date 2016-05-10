@@ -189,6 +189,11 @@
 						</linearGradient>
 					</defs>
 				</svg>
+
+				<canvas id="glcanvas" width="800" height="600">
+					Your browser doesn't appear to support the 
+					<code>&lt;canvas&gt;</code> element.
+				</canvas>
 			</div>
 			<div class="col-md-offset-1 col-md-8" id="break">
 				<h1>Break Time!</h1>
@@ -240,9 +245,54 @@
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="js/bootstrap.min.js"></script>
 		<script src="threedeepies.js"></script>
+		<script src="js/sylvester.js"></script>
+		<script src="js/glUtils.js"></script>
+		<script src="js/glMoreUtils.js"></script>
+		<script src="threedeepies-gl.js"></script>
 		<script src="piestudy.js"></script>
+
+		<!-- Shaders -->
+		<script id="shader-fs" type="x-shader/x-fragment">
+//			varying lowp vec4 vColor;
+//
+//			void main(void) {
+//				gl_FragColor = vColor;
+//			}
+			void main(void) {
+				gl_FragColor = vec4(0.85, 0.85, .85, 1.0);
+			}
+		</script>
+
+		<script id="shader-vs" type="x-shader/x-vertex">
+//			attribute vec3 aVertexPosition;
+//			attribute vec4 aVertexColor;
+//
+//			uniform mat4 uMVMatrix;
+//			uniform mat4 uPMatrix;
+//
+//			varying lowp vec4 vColor;
+//
+//			void main(void) {
+//				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+//				vColor = aVertexColor;
+//			}
+
+			attribute vec3 aVertexPosition;
+
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+
+			void main(void) {
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			}
+		</script>
+
 		<script>
 			var drawInfo = init();
+			
+			var gl = initGL();
+			var squareVerticesBuffer = initBuffers(gl);
+			drawGLScene(gl, squareVerticesBuffer);
 			
 			var trials;
 			
