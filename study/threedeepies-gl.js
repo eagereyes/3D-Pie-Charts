@@ -11,7 +11,7 @@ function initGL() {
 	var canvas = document.getElementById('glcanvas');
 
 	// Initialize the GL context
-	gl = initWebGL(canvas);
+	glInfo = initWebGL(canvas);
 	
 	// Only continue if WebGL is available and working
 	if (gl) {
@@ -25,13 +25,15 @@ function initGL() {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
 	
-	initShaders(gl);
+	initShaders(glInfo);
 	
-	return gl;
+	return glInfo;
 }
 
 function initWebGL(canvas) {
-	var gl = null;
+	var glInfo = {
+		gl: null
+	};
 	
 	try {
 		// Try to grab the standard context. If it fails, fallback to experimental.
@@ -45,10 +47,12 @@ function initWebGL(canvas) {
 		gl = null;
 	}
 	
-	return gl;
+	glInfo.gl = gl;
+	
+	return glInfo;
 }
 
-function initShaders(gl) {
+function initShaders(glInfo) {
 	var fragmentShader = getShader(gl, 'shader-fs');
 	var vertexShader = getShader(gl, 'shader-vs');
 	
@@ -62,13 +66,15 @@ function initShaders(gl) {
 	// If creating the shader program failed, alert
 	
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-		alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shader));
+		alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
 	}
 	
 	gl.useProgram(shaderProgram);
 	
 	vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
 	gl.enableVertexAttribArray(vertexPositionAttribute);
+	
+	glInfo['colorLocation'] = gl.getUniformLocation(shaderProgram, "vColor");
 	
 	// vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
 	// gl.enableVertexAttribArray(vertexColorAttribute);
@@ -104,7 +110,7 @@ function getShader(gl, id) {
 	}
 
 	gl.shaderSource(shader, theSource);
-		
+
 	// Compile the shader program
 	gl.compileShader(shader);	
 		
@@ -128,7 +134,7 @@ function makeCircleVertices() {
 	return vertices;
 }
 
-function initBuffers(gl) {
+function initBuffers(glInfo) {
 	var squareVerticesBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
 
@@ -147,22 +153,33 @@ function initBuffers(gl) {
 	// gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
 	// gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 	
-	return squareVerticesBuffer;
+	glInfo['squareVerticesBuffer'] = squareVerticesBuffer;
+	
+	return glInfo;
 }
 
-function drawGLScene(gl, squareVerticesBuffer) {
+function drawGLScene(glInfo, centralAngle, viewAngle, rotation) {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	perspectiveMatrix = makePerspective(45, 800./600., 0.1, 100.0);
+//	perspectiveMatrix = makePerspective(45, 800./600., 0.1, 100.0);
+
+	perspectiveMatrix = makeOrtho(-800/600, 800/600, -1, 1, .1, 100.);
 
 	loadIdentity();
-	mvTranslate([-0.0, 0.0, -6.0]);
-	mvMatrix = mvMatrix.multiply(Transform.scale(2));
+	mvTranslate([0.0, 0.0, -6.0]);
+//	mvMatrix = mvMatrix.multiply(Transform.scale(2));
+	mvMatrix = mvMatrix.multiply(Transform.rotateX(Math.PI/2-viewAngle));
+	mvMatrix = mvMatrix.multiply(Transform.rotateZ(rotation));
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, glInfo.squareVerticesBuffer);
 	gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 	// gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
 	// gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+	gl.uniform4f(glInfo.colorLocation, .85, .85, .85, 1);
 	setMatrixUniforms();
 	gl.drawArrays(gl.TRIANGLE_FAN, 0, 362);
+	
+	gl.uniform4f(glInfo.colorLocation, .27, .51, .71, 1);
+	setMatrixUniforms();
+	gl.drawArrays(gl.TRIANGLE_FAN, 0, Math.round(centralAngle*180/Math.PI)+2);
 }

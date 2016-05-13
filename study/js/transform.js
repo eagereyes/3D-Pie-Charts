@@ -3,9 +3,8 @@
 // but adapted to generate 4x4 matrices and generally remodeled to work in a 3D world
 
 var Transform = {
-	rotateX: function(deg) {
-		var rad = deg * (Math.PI/180),
-			cos = Math.cos(rad),
+	rotateX: function(rad) {
+		var	cos = Math.cos(rad),
 			sin = Math.sin(rad);
 
 		return $M([[1,   0,    0, 0],
@@ -14,9 +13,8 @@ var Transform = {
 				   [0,   0,    0, 1]]);
 	},
 
-	rotateY: function(deg) {
-		var rad = deg * (Math.PI/180),
-			cos = Math.cos(rad),
+	rotateY: function(rad) {
+		var cos = Math.cos(rad),
 			sin = Math.sin(rad);
 
 		return $M([[ cos, 0, sin, 0],
@@ -25,9 +23,8 @@ var Transform = {
 				   [   0, 0,   0, 1]]);
 	},
 
-	rotateZ: function(deg) {
-		var rad = deg * (Math.PI/180),
-			cos = Math.cos(rad),
+	rotateZ: function(rad) {
+		var cos = Math.cos(rad),
 			sin = Math.sin(rad);
 
 		return $M([[cos, -sin, 0, 0],
