@@ -157,6 +157,7 @@ function drawGLScene(gl, squareVerticesBuffer) {
 
 	loadIdentity();
 	mvTranslate([-0.0, 0.0, -6.0]);
+	mvMatrix = mvMatrix.multiply(Transform.scale(2));
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
 	gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
