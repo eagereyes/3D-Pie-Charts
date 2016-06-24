@@ -276,9 +276,7 @@
 				
 				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), HEIGHT/2, bodyHeight, +$('input[name="depth"]:checked').val());
 				
-//				drawGLScene(glInfo, rad(centralAngle), rad(viewAngle), rad(rotation));
-
-				renderGL(glInfo);
+				drawGLPie(glInfo, rad(centralAngle), rad(viewAngle), rad(rotation), HEIGHT/2, bodyHeight, +$('input[name="depth"]:checked').val());
 				
 				var predictions = predict(rad(centralAngle), rad(viewAngle), rad(rotation));
 				
