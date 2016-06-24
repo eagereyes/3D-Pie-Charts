@@ -1,7 +1,7 @@
 
 function makeDisk(radius, body, color, thetaLength) {
 	var geometry = new THREE.CylinderBufferGeometry(radius, radius, body, 100, 1, false, 0, thetaLength);
-	var material = new THREE.MeshBasicMaterial({color: color});
+	var material = new THREE.MeshLambertMaterial({color: color});
 	return new THREE.Mesh(geometry, material);
 }
 
@@ -9,6 +9,11 @@ function initGL(domContainer, width, height) {
 	var glInfo = {};
 
 	glInfo.scene = new THREE.Scene();
+	glInfo.scene.add(new THREE.AmbientLight(0xd0d0d0)); // ambient light
+	var directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+	directionalLight.position.set(-1, 0, 1);
+	glInfo.scene.add(directionalLight);
+
 	glInfo.camera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 10, 2000)
 //	glInfo.camera = new THREE.PerspectiveCamera(30, width/height, 1, 4000);
 	glInfo.camera.position.z = 2*width;
@@ -45,7 +50,7 @@ function drawGLPie(glInfo, centralAngle, viewAngle, rotation, radius, body) {
 			glInfo.baseDisk = makeDisk(glInfo.radius, body, 0xd3d3d3, Math.PI*2);
 			glInfo.scene.add(glInfo.baseDisk);
 		}
-		
+
 		glInfo.wedge = makeDisk(glInfo.radius, body, 0x4682b4, centralAngle);
 		glInfo.baseDisk.add(glInfo.wedge);
 	}
