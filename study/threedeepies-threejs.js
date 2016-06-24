@@ -1,4 +1,10 @@
 
+function makeDisk(radius, body, color, thetaLength) {
+	var geometry = new THREE.CylinderBufferGeometry(radius, radius, body, 100, 1, false, 0, thetaLength);
+	var material = new THREE.MeshBasicMaterial({color: color});
+	return new THREE.Mesh(geometry, material);
+}
+
 function initGL(domContainer, width, height) {
 	var glInfo = {};
 
@@ -14,25 +20,36 @@ function initGL(domContainer, width, height) {
 
 	domContainer.appendChild(glInfo.renderer.domElement);
 
-	var geometry = new THREE.CylinderBufferGeometry(height/2, height/2, 10, 100);
-	var material = new THREE.MeshBasicMaterial({color: 0xd3d3d3}); // lightgray
-	glInfo.baseDisk = new THREE.Mesh(geometry, material);
+	glInfo.baseDisk = makeDisk(height/2, 10, 0xd3d3d3, Math.PI*2);
 
-	geometry = new THREE.CylinderBufferGeometry(height/2, height/2, 10, 100, 1, false, 0, rad(30));
-
-	glInfo.wedgeMaterial = new THREE.MeshBasicMaterial({color: 0x4682b4}); // steelblue
-
-	glInfo.wedge = new THREE.Mesh(geometry, glInfo.wedgeMaterial);
+	glInfo.wedge = makeDisk(height/2, 10, 0x4682b4, rad(30));
 	glInfo.wedge.rotation.y = rad(220+90);
 
 	glInfo.baseDisk.add(glInfo.wedge);
 
 	glInfo.scene.add(glInfo.baseDisk);
 
+	glInfo.radius = height/2;
+	glInfo.centralAngle = rad(30);
+	glInfo.body = 10;
+
 	return glInfo;
 }
 
 function drawGLPie(glInfo, centralAngle, viewAngle, rotation, radius, body) {
+	if (centralAngle != glInfo.centralAngle || body != glInfo.body) {
+		glInfo.baseDisk.remove(glInfo.wedge);
+
+		if (body != glInfo.body) {
+			glInfo.scene.remove(glInfo.baseDisk);
+			glInfo.baseDisk = makeDisk(glInfo.radius, body, 0xd3d3d3, Math.PI*2);
+			glInfo.scene.add(glInfo.baseDisk);
+		}
+		
+		glInfo.wedge = makeDisk(glInfo.radius, body, 0x4682b4, centralAngle);
+		glInfo.baseDisk.add(glInfo.wedge);
+	}
+
 	glInfo.baseDisk.rotation.x = viewAngle;
 	glInfo.wedge.rotation.y = rotation+Math.PI/2;
 
