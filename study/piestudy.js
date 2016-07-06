@@ -3,11 +3,8 @@ var VIEWANGLES = [90, 60, 30, 15];
 
 var HEIGHTS = [0, 10, 50]
 
-var NUMS_LOW = [4,7,7,7,9,9,10,10,11,11,12,12,14,16,16,18,18,18,19,20,20,21,22,23,24,25,26,26,27,27,28,32,32];
-
-var NUMS_MID = [34,35,37,37,38,39,40,41,43,43,47,47,49,50,50,52,53,55,56,56,56,57,59,59,60,61,61,63,65,66];
-
-var NUMS_HIGH = [67,68,70,73,74,74,76,76,76,76,79,80,83,84,85,86,88,89,91,91,93,93,93,94,95,95,96];
+var NUM_RANGE = [4, 96];
+var NUM_RANGE_SUBSETS = 3;
 
 var NUM_ROTATIONS = 3;
 
@@ -22,13 +19,6 @@ var inBreak = false;
  * Need to be converted to radians for drawing.
  */
 function makeTrials(resultID, condition, demographics) {
-
-	d3.shuffle(NUMS_LOW);
-	d3.shuffle(NUMS_MID);
-	d3.shuffle(NUMS_HIGH);
-	
-	var nums = [NUMS_LOW, NUMS_MID, NUMS_HIGH];
-	var numIndex = [0, 0, 0];
 	
 	var trials = [];
 
@@ -36,16 +26,20 @@ function makeTrials(resultID, condition, demographics) {
 
 		for (var j = 0; j < HEIGHTS.length; j++) {
 			
+			// no need to vary height for "head on" condition
 			if (i == 0 && j > 0)
 				continue;
 
 			for (var r = 0; r < NUM_ROTATIONS; r++) {
 							
-				for (var k = 0; k < nums.length; k++) {
+				for (var k = 0; k < NUM_RANGE_SUBSETS; k++) {
 					
-					var value = nums[k][numIndex[k]];
-					
-					numIndex[k] = (numIndex[k] + 1) % nums[k].length;
+					// pick a random integer in the given range
+					var min = NUM_RANGE[0];
+					var max = NUM_RANGE[1];
+					var range = (max - min) / NUM_RANGE_SUBSETS;
+					var value = Math.random()*range + min + range*k;
+					value = Math.round(value);
 					
 					var trial = {
 						resultID: resultID,
