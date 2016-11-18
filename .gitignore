@@ -10,3 +10,5 @@ data
 .RData
 
 *.pyc
+
+.DS_Store

@@ -93,9 +93,15 @@ projectAngle <- function(alpha, theta, rho) {
 }
 
 classifyDirection <- function(bisectorAngle) {
-	ifelse((bisectorAngle > 30) & (bisectorAngle < 150), 'back',
+	ifelse((bisectorAngle > 30) & (bisectorAngle < 150), 'Back',
 		   ifelse ((bisectorAngle > 210) & (bisectorAngle < 330),
-		   'front', 'side'))
+		   'Front', 'Side'))
+}
+
+classifyDirection45 <- function(bisectorAngle) {
+	ifelse((bisectorAngle > 45) & (bisectorAngle < 135), 'Back',
+		   ifelse ((bisectorAngle > 225) & (bisectorAngle < 315),
+		   		'Front', 'Side'))
 }
 
 cond1 <- function(data) {
@@ -110,24 +116,35 @@ makePredictions <- function() {
 	viewAngle <- c()
 	theta <- c()
 	thetaProj <- c()
+	rhos <- c()
 	rhoProj <- c()
+	bisectors <- c()
+	bisectorsProj <- c()
 	area <- c()
 	arc <- c()
-	angles <- deg2rad(1:359)
+	angles <- deg2rad(c(5, 10, 20, 30, 45, 60, 75, 90, 135, 180))
 	for (alpha in deg2rad(c(90, 60, 30, 15))) {
-		verticalFactor <- sin(alpha)
-		anglesProj <- projectAngle(alpha, angles, 0)
-		viewAngle <- append(viewAngle, rep_len(alpha, length(angles)))
-		theta <- append(theta, angles)
-		thetaProj <- append(thetaProj, anglesProj$thetaProj)
-		rhoProj <- append(rhoProj, anglesProj$rhoProj)
-		area <- append(area, ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, anglesProj$theta, 0))
-		arc <- append(arc, ellipseArcFraction(pieRadius, pieRadius*verticalFactor, anglesProj$theta, 0))
+		for (rho in deg2rad(0:359)) {
+			verticalFactor <- sin(alpha)
+			anglesProj <- projectAngle(alpha, angles, rho)
+			viewAngle <- append(viewAngle, rep_len(alpha, length(angles)))
+			theta <- append(theta, angles)
+			thetaProj <- append(thetaProj, anglesProj$thetaProj)
+			rhos <- append(rhos, rep_len(rho, length((angles))))
+			rhoProj <- append(rhoProj, anglesProj$rhoProj)
+			bisectors <- rho + angles/2
+			bisectorsProj <- append(bisectorsProj, projectAngle(alpha, bisectors, 0)$theta)
+			area <- append(area, ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, anglesProj$thetaProj, anglesProj$rhoProj))
+			arc <- append(arc, ellipseArcFraction(pieRadius, pieRadius*verticalFactor, anglesProj$thetaProj, anglesProj$rhoProj))
+		}
 	}
   
-	predictions <- data.frame(viewAngle=factor(viewAngle), theta, thetaProj, rhoProj, area, arc)
+	predictions <- data.frame(viewAngle=rad2deg(viewAngle), rad2deg(theta), rad2deg(thetaProj), rad2deg(rhos), rad2deg(rhoProj), rad2deg(bisectors), rad2deg(bisectorsProj), area, arc)
 	return(predictions)
 }
+
+# predictions <- makePredictions()
+# write.csv(predictions, file="3dpiepredictions-r.csv")
 
 setwd('/Users/rkosara/Dropbox (Tableau)/Research/3D Pie Charts')
 data <- read.csv('results-3dpiestudy.csv')
@@ -145,16 +162,22 @@ data <- mutate(data,
 				verticalFactor = sin(rad(viewAngle)),
 				fraction = value/100,
 				projFraction = thetaProj/(2*pi),
-				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
-#				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
+#				areaFraction = ellipseAreaFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
+				areaFraction = projFraction,
+				arcFraction = ellipseArcFraction(pieRadius, pieRadius*verticalFactor, thetaProj, rhoProj),
 				threeDee = (viewAngle != 90), # TRUE if chart is 3D, FALSE if 2D
 				opposite = (abs(100-value-answer) < absError) & (abs(50-value) > 5),
 				bisectorAngle = rotation+centralAngle/2,
-				direction = classifyDirection(bisectorAngle),
+				bisectorProj = projectAngle(rad(viewAngle), rad(bisectorAngle), 0)$theta,
+				orientation = classifyDirection45(bisectorAngle),
 				viewAngle = factor(viewAngle, levels=c(90, 60, 30, 15))
 			)
 
-write.csv(data, file='results-3dpiestudy-enriched.csv')
+# write.csv(data, file='results-3dpiestudy-enriched.csv')
+
+# How many are opposites?
+oppositeCount <- cond1(data) %>% filter(opposite == TRUE) %>% summarize(count=n())
+oppositeFraction <- oppositeCount$count/length(cond1(data)$resultID)
 
 dataFiltered <- data %>%
 	# Remove responses that were likely for the other slice
@@ -165,16 +188,19 @@ dataFiltered <- data %>%
 baseline <- dataFiltered %>%
 	filter(viewAngle == 90) %>%
 	group_by(resultID) %>%
-	summarize(AbsErrorBaseline = mean(absError))
+	summarize(AbsErrorBaseline = mean(absError),
+			  errorBaseline = mean(error))
 
 dataFiltered <- dataFiltered %>%
 	left_join(baseline, by = 'resultID') %>%
-	mutate(normalizedAbsError = absError/AbsErrorBaseline)
+	mutate(normalizedAbsError = absError/AbsErrorBaseline,
+		   normalizedError = error/errorBaseline)
 
 dataAggregated <- dataFiltered %>%
-	group_by(viewAngle, resultID, condition, direction, height) %>%
+	group_by(viewAngle, resultID, condition, orientation, height) %>%
 	summarize(meanLogError = mean(logError), meanError = mean(error),
-			  meanAbsError = mean(absError), normalizedAbsError = mean(normalizedAbsError))
+			  meanAbsError = mean(absError), normalizedAbsError = mean(normalizedAbsError),
+			  normalizedError = mean(normalizedError))
 
 # Log error by view Angle for the two conditions
 ggplot(dataAggregated, aes(x=viewAngle, y=meanLogError, fill=factor(viewAngle))) +
@@ -286,9 +312,23 @@ ggplot(dataFiltered, aes(value, areaFraction)) + geom_point() + facet_grid(viewA
 
 rmse <- dataFiltered %>%
 		group_by(condition) %>%
-		summarize(mseArea = sqrt(mean((answer-fraction*100)*(answer-fraction*100))),
-#				 mseArc = sqrt(mean((answer-arcFraction*100)*(answer-arcFraction*100))),
-				 mseAngle = sqrt(mean((answer-projFraction*100)*(answer-projFraction*100))))
+		summarize(mseArea = sqrt(mean((answer-fraction*100)^2)),
+				 mseArc = sqrt(mean((answer-arcFraction*100)^2)),
+				 mseAngle = sqrt(mean((answer-projFraction*100)^2)))
+
+# Akaike Information Content, AIC
+rss <- dataFiltered %>%
+	group_by(condition) %>%
+	summarize(rssArea = sum((answer-fraction*100)^2),
+			  rssArc = sum((answer-arcFraction*100)^2),
+			  rssAngle = sum((answer-projFraction*100)^2))
+
+# k = 3 for arc and angle (viewAngle, rotation, value), and we're only considering half the data for each (only condition 1)
+aicArc <- 2*3+length(dataFiltered)/2*log(rss$rssArea[2])
+aicAngle <- 2*3+length(dataFiltered)/2*log(rss$rssArea[3])
+
+# k = 1 for fraction, since it only takes value into account!
+aicArea <- 2*1+length(dataFiltered)/2*log(rss$rssArea[1])
 
 # Normalized error by view angle for the two conditions
 ggplot(cond1(dataAggregated), aes(x=viewAngle, y=normalizedAbsError, fill=factor(viewAngle))) +
@@ -319,10 +359,19 @@ d <- dataFiltered %>% transform(viewAngle=unclass(viewAngle))
 model1 <- lm(answer ~ viewAngle + height + value + rotation, cond1(d))
 model2 <- lm(answer ~ viewAngle + height + value + rotation, cond2(d))
 
+rssModel1 <- sum(residuals(model1)^2)
+# AIC, k = 4
+aicModel1 <- 2*4+length(dataFiltered)/2*log(rssModel1)
+
+# Use just the two factors with a real influence
+model1b <- lm(answer ~ viewAngle + value, cond1(d))
+rssModel1b <- sum(residuals(model1b)^2)
+# k = 2 for this model?
+aicModel1b <- 2*2+length(dataFiltered)/2*log(rssModel1b)
+
 # Experiment 2!
 summary(lm(answer ~ viewAngle + height + value + rotation, cond2(d)))
 summary(lm(error ~ viewAngle, cond2(d)))
-
 
 # Variation where we use Cook's D to remove highly influential values, rather than the opposites
 d <- data %>% transform(viewAngle=unclass(viewAngle))
@@ -337,3 +386,62 @@ influential <- influence.measures(model2)
 infRows <- which(apply(influential$is.inf, 1, any))
 dataCleaned <- d[-infRows,]
 summary(lm(answer ~ viewAngle + height + value + rotation, cond2(dataCleaned)))
+
+##########
+# New figures Sep 2016
+#
+#
+
+lowerCI <- function(v) {
+	mean(v) - sd(v)*1.96/sqrt(length(v))
+}
+
+upperCI <- function(v) {
+	mean(v) + sd(v)*1.96/sqrt(length(v))
+}
+
+# Body height CIs
+ggplot(cond1(dataAggregated), aes(x=factor(height), y=meanAbsError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	labs(x = "Body Height", y = "Absolute Error")
+
+# Orientation/Direction based on the classification of the bisector
+ggplot(cond1(dataAggregated), aes(x=orientation, y=meanAbsError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	labs(x = "Orientation", y = "Absolute Error")
+
+ggplot(cond1(dataAggregated), aes(x=orientation, y=meanError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	labs(x = "Orientation", y = "Error")
+
+# Facets
+ggplot(cond1(dataAggregated), aes(x=orientation, y=meanError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	facet_wrap( ~ viewAngle, ncol=2) +
+	labs(x = "Orientation", y = "Error")
+
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	facet_grid( ~ orientation) +
+	labs(x = "Orientation, View Angle", y = "Error")
+
+# Error by view angle
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanError, fill=factor(viewAngle))) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	labs(x = "View Angle", y = "Error")
+
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanAbsError, fill=factor(viewAngle))) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	labs(x = "View Angle", y = "Absolute Error")
+
