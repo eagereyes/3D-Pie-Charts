@@ -203,19 +203,33 @@
 			</div>
 			<div class="col-md-4">
 				<div id="infoPanel">
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios1" value="baseline" checked> Baseline
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios2" value="circular"> Circular slice
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios2" value="circular-center"> Circular slice through center
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios2" value="off-center"> Off-center
+						</label>
+					</div>
+
 					<label>Central Angle: <span id="centralAngleVal"></span>&deg; <input type="range" min="1" max="359" value="30" id="centralAngle" oninput="redraw();"></label><br/>
-					<label>View Angle: <span id="viewAngleVal"></span>&deg; <input type="range" min="15" max="90" value="15" id="viewAngle" oninput="redraw();"></label><br/>
 					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
-					<label>Body: <span id="bodyVal"></span><input type="range" min="0" max="50" step="5" value="20" id="bodyHeight" oninput="redraw();"></label><br />
-					<strong>Depth Cues</strong>
-					<div class="radio"><label><input type="radio" name="depth" value="0" onchange="redraw();" checked> None</label></div>
-					<div class="radio"><label><input type="radio" name="depth" value="1" onchange="redraw();"> Pattern</label></div>
-					<div class="radio"><label><input type="radio" name="depth" value="2" onchange="redraw();"> Circles</label></div>
 					
 					Angle: <span id="angle"></span>&deg;<br/>
-					Projected: <span id="distortedAngle"></span>&deg;<br />
-					By Arc Length: <span id="angleByArc"></span>&deg;<br />
-					By Area: <span id="angleByArea"></span>&deg;<br />
+					Fraction: <span id="fraction"></span><br />
+					Area Fraction: <span id="areaFraction"></span><br />
 				</div>
 				
 				<div id="errors">
