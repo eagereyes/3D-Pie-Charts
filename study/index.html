@@ -227,12 +227,14 @@
 						</label>
 					</div>
 
-					<label>Central Angle: <span id="centralAngleVal"></span>&deg; <input type="range" min="1" max="359" value="30" id="centralAngle" oninput="redraw();"></label><br/>
+					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="30" id="percentage" oninput="redraw();"></label><br/>
 					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
 					
 					Angle: <span id="angle"></span>&deg;<br/>
 					Fraction: <span id="fraction"></span><br />
 					Area Fraction: <span id="areaFraction"></span><br />
+					Second Radius: <span id="secondradius"></span><br />
+					Distance: <span id="distance"></span><br />
 				</div>
 				
 				<div id="errors">
@@ -273,12 +275,16 @@
 						
 			function redraw() {
 
-				var centralAngle = $('#centralAngle')[0].value;
-				$('#angle').text(centralAngle);
+				var percentage = $('#percentage')[0].value;
+				$('#percentageVal').text(percentage);
 				
 				var rotation = $('#rotation')[0].value;
+				$('#rotationVal').text(rotation);
 				
-				drawPie(drawInfo, rad(centralAngle), rad(rotation), HEIGHT/2-5, 'baseline');
+				var centralAngle = Math.PI/50*percentage;
+				$('#angle').text(deg(centralAngle).toFixed(0));
+
+				drawStandardPie(drawInfo, centralAngle, rad(rotation), HEIGHT/2-5, 'baseline');
 			}
 
 			function validateDemographics() {

@@ -15,10 +15,7 @@ function lineRectIntersect(angle, radius, width, height) {
 	return {x: x, y: y};
 }
 
-function drawPie(drawInfo, angle, rotation, radius, type) {
-
-	drawInfo.svg.selectAll('g').remove();
-
+function drawBasePie(drawInfo, rotation, radius) {
 	var g = drawInfo.svg.append('g')
 		.attr('transform', 'translate('+WIDTH/2+','+HEIGHT/2+') rotate('+deg(-rotation)+')');
 
@@ -27,6 +24,15 @@ function drawPie(drawInfo, angle, rotation, radius, type) {
 		.attr('cy', 0)
 		.attr('r', radius)
 		.attr('class', 'grayslice');
+
+	return g;
+}
+
+function drawStandardPie(drawInfo, angle, rotation, radius, type) {
+
+	drawInfo.svg.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
 
 	x = Math.cos(angle)*radius;
 	y = -Math.sin(angle)*radius;
