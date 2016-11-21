@@ -20,7 +20,7 @@ function drawPie(drawInfo, angle, rotation, radius, type) {
 	drawInfo.svg.selectAll('g').remove();
 
 	var g = drawInfo.svg.append('g')
-		.attr('transform', 'translate('+WIDTH/2+','+HEIGHT/2+') rotate('+deg(rotation)+')');
+		.attr('transform', 'translate('+WIDTH/2+','+HEIGHT/2+') rotate('+deg(-rotation)+')');
 
 	g.append('circle')
 		.attr('cx', 0)
@@ -28,12 +28,12 @@ function drawPie(drawInfo, angle, rotation, radius, type) {
 		.attr('r', radius)
 		.attr('class', 'grayslice');
 
-	var points = 'M 0,0 L '+radius+',0 ';
-
 	x = Math.cos(angle)*radius;
-	y = Math.sin(angle)*radius;
+	y = -Math.sin(angle)*radius;
 
-	points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+' 1 '+x+','+y+' Z';
+	var points = 'M 0,0 L '+x+','+y+' ';
+
+	points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+' 1 '+radius+',0 Z';
 
 	g.append('path')
 		.attr('d', points)
