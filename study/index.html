@@ -161,7 +161,7 @@
 		</div>
 		<div class="row">
 			<div class="col-md-8" id="pie">
-				<svg width="800" height="600">
+				<svg width="800" height="610">
 					<defs>
 						<pattern id="bluePattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
 							<!--<circle cx="10" cy="10" r="9" style="stroke: none; fill:#005884;" />-->
@@ -187,6 +187,9 @@
 							<stop offset="25%" stop-color="steelblue" />
 							<stop offset="75%" stop-color="#005480" />
 						</linearGradient>
+						<clipPath id="circleClip">
+							<circle cx="400" cy="305" r="300"/>
+						</clipPath>
 					</defs>
 				</svg>
 			</div>
@@ -253,7 +256,7 @@
 		<script src="js/jquery-1.12.0.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="js/bootstrap.min.js"></script>
-		<script src="threedeepies.js"></script>
+		<script src="weirdpies.js"></script>
 		<script src="piestudy.js"></script>
 		<script>
 			var drawInfo = init();
@@ -271,25 +274,11 @@
 			function redraw() {
 
 				var centralAngle = $('#centralAngle')[0].value;
-				$('#centralAngleVal').text(centralAngle);
-				
-				var viewAngle = $('#viewAngle')[0].value;
-				$('#viewAngleVal').text(viewAngle);
+				$('#angle').text(centralAngle);
 				
 				var rotation = $('#rotation')[0].value;
-				$('#rotationVal').text(rotation);
 				
-				var bodyHeight = +$('#bodyHeight')[0].value;
-				$('#bodyVal').text(bodyHeight);
-				
-				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), HEIGHT/2, bodyHeight, +$('input[name="depth"]:checked').val());
-				
-				var predictions = predict(rad(centralAngle), rad(viewAngle), rad(rotation));
-				
-				$('#angle').text(deg(predictions.angle).toFixed(0));
-				$('#distortedAngle').text(deg(predictions.angleDistorted).toFixed(0));
-				$('#angleByArc').text(deg(predictions.angleByArc).toFixed(0));
-				$('#angleByArea').text(deg(predictions.angleByArea).toFixed(0));
+				drawPie(drawInfo, rad(centralAngle), rad(rotation), HEIGHT/2-5, 'baseline');
 			}
 
 			function validateDemographics() {
