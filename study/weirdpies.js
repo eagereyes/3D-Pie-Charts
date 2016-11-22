@@ -51,7 +51,7 @@ function drawStandardPie(drawInfo, percentage, rotation, radius) {
 }
 
 // from http://mathworld.wolfram.com/Circle-CircleIntersection.html, R=r case
-function circularLensArea(radius, distance) {
+function circularLensAreaSameRadius(radius, distance) {
 	return 2*radius*radius*Math.acos(distance/(2*radius))-distance/2*Math.sqrt(4*radius*radius-distance*distance);
 }
 
@@ -63,7 +63,7 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 
 	var distance = (100-percentage)/100*radius*2; // just for now
 
-	var areaFraction = circularLensArea(radius, distance) / (radius*radius*Math.PI);
+	var areaFraction = circularLensAreaSameRadius(radius, distance) / (radius*radius*Math.PI);
 
 	var x = distance/2;
 
@@ -78,6 +78,13 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 		.attr('class', 'blueslice');
 
 	return {areaFraction: areaFraction, distance: distance};
+}
+
+// from http://mathworld.wolfram.com/Circle-CircleIntersection.html, with r=d, distance = radius2
+function circularLensAreaRadiusEqualsDistance(radius1, radius2) {
+	return radius2*radius2*Math.acos((2*radius2*radius2-radius1*radius1)/(2*radius2*radius2)) + 
+			radius1*radius1*Math.acos(radius1/(2*radius2)) -
+			Math.sqrt(radius1*(radius2+radius2-radius1)*radius1*(radius2+radius2+radius1))/2;
 }
 
 function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) {
@@ -97,6 +104,8 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 			.attr('class', 'blueslice');
 
 		areaFraction = smallRadius*smallRadius/(radius*radius);
+	} else {
+		
 	}
 
 	return areaFraction;
