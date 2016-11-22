@@ -28,7 +28,7 @@ function drawBasePie(drawInfo, rotation, radius) {
 	return g;
 }
 
-function drawStandardPie(drawInfo, angle, rotation, radius, type) {
+function drawStandardPie(drawInfo, angle, rotation, radius) {
 
 	drawInfo.svg.selectAll('g').remove();
 
@@ -39,13 +39,45 @@ function drawStandardPie(drawInfo, angle, rotation, radius, type) {
 
 	var points = 'M 0,0 L '+x+','+y+' ';
 
-	points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+' 1 '+radius+',0 Z';
+	points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+',1 '+radius+',0 Z';
 
 	g.append('path')
 		.attr('d', points)
 		.attr('class', 'blueslice');
 
 }
+
+// from http://mathworld.wolfram.com/Circle-CircleIntersection.html, R=r case
+function circularLensArea(radius, distance) {
+	return 2*radius*radius*Math.acos(distance/(2*radius))-distance/2*Math.sqrt(4*radius*radius-distance*distance);
+}
+
+function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
+
+	drawInfo.svg.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var distance = (100-percentage)/100*radius*2; // just for now
+
+	var areaFraction = circularLensArea(radius, distance) / (radius*radius*Math.PI);
+
+	var x = distance/2;
+
+	var y = Math.sqrt(radius*radius-x*x);
+
+	var path = 'M '+x+','+y+' A '+radius+','+radius+' 0,0 0 '+x+','+(-y)+' ';
+
+	path += 'A '+radius+','+radius+' 0,0 0 '+x+','+y+' Z';
+
+	g.append('path')
+		.attr('d', path)
+		.attr('class', 'blueslice');
+
+	
+	return {areaFraction: areaFraction, distance: distance};
+}
+
 
 function makeSVG() {
 

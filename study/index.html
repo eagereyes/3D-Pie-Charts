@@ -207,24 +207,16 @@
 			<div class="col-md-4">
 				<div id="infoPanel">
 					<div class="radio">
-						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios1" value="baseline" checked> Baseline
-						</label>
+						<label><input type="radio" name="charttype" id="charttype-base" value="baseline" checked> Baseline</label>
 					</div>
 					<div class="radio">
-						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios2" value="circular"> Circular slice
-						</label>
+						<label><input type="radio" name="charttype" id="charttype-circular" value="circular"> Circular slice</label>
 					</div>
 					<div class="radio">
-						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios2" value="circular-center"> Circular slice through center
-						</label>
+						<label><input type="radio" name="charttype" id="charttype-circular-center" value="circular-center"> Circular slice through center</label>
 					</div>
 					<div class="radio">
-						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios2" value="off-center"> Off-center
-						</label>
+						<label><input type="radio" name="charttype" id="charttype-off" value="off-center"> Off-center</label>
 					</div>
 
 					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="30" id="percentage" oninput="redraw();"></label><br/>
@@ -232,7 +224,7 @@
 					
 					Angle: <span id="angle"></span>&deg;<br/>
 					Fraction: <span id="fraction"></span><br />
-					Area Fraction: <span id="areaFraction"></span><br />
+					Area Fraction: <span id="areaFraction"></span>%<br />
 					Second Radius: <span id="secondradius"></span><br />
 					Distance: <span id="distance"></span><br />
 				</div>
@@ -265,6 +257,8 @@
 			
 			var trials;
 			
+			var chartType = 'baseline';
+
 			function rad(degrees) {
 				return degrees*Math.PI/180;
 			}
@@ -272,19 +266,36 @@
 			function deg(radians) {
 				return radians/Math.PI*180;
 			}
-						
+			
+			function setChartType(newType) {
+				chartType = newType;
+				redraw();
+			}
+
 			function redraw() {
 
-				var percentage = $('#percentage')[0].value;
+				var percentage = +$('#percentage')[0].value;
 				$('#percentageVal').text(percentage);
 				
-				var rotation = $('#rotation')[0].value;
+				var rotation = +$('#rotation')[0].value;
 				$('#rotationVal').text(rotation);
 				
-				var centralAngle = Math.PI/50*percentage;
-				$('#angle').text(deg(centralAngle).toFixed(0));
+				switch(chartType) {
+					case 'baseline':
+						var centralAngle = Math.PI/50*percentage;
+						$('#angle').text(deg(centralAngle).toFixed(0));
 
-				drawStandardPie(drawInfo, centralAngle, rad(rotation), HEIGHT/2-5, 'baseline');
+						drawStandardPie(drawInfo, centralAngle, rad(rotation), HEIGHT/2-5);
+					break;
+
+					case 'circular':
+						var params = drawCircularSegmentPie(drawInfo, percentage, rad(rotation), HEIGHT/2-5);
+
+						$('#areaFraction').text((params.areaFraction*100).toFixed(0));
+						$('#distance').text(params.distance);
+					break;
+				}
+
 			}
 
 			function validateDemographics() {
@@ -323,6 +334,10 @@
 				$('#infoPanel').show();
 				$('#pie').show();
 				$('#instructions').hide();
+
+				d3.selectAll('input')
+					.filter(function(d) { return this.name == 'charttype'; })
+					.on('change', function() { setChartType(this.value); });
 
 				redraw();
 			} else {
