@@ -292,6 +292,10 @@
 						$('#areaFraction').text((params.areaFraction*100).toFixed(0));
 						$('#distance').text(params.distance.toFixed(0));
 					break;
+
+					case 'circular-center':
+						var areaFraction = drawCenteredCircularSegmentPie(drawInfo, percentage, rad(rotation), HEIGHT/2-5);
+						$('#areaFraction').text((areaFraction*100).toFixed(0));
 				}
 
 			}

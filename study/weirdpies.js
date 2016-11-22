@@ -77,8 +77,29 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 		.attr('d', path)
 		.attr('class', 'blueslice');
 
-	
 	return {areaFraction: areaFraction, distance: distance};
+}
+
+function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) {
+	drawInfo.svg.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var areaFraction = 0;
+
+	if (percentage <= 25) {
+		var smallRadius = Math.sqrt(radius*radius*percentage/100);
+
+		g.append('circle')
+			.attr('cx', smallRadius)
+			.attr('cy', 0)
+			.attr('r', smallRadius)
+			.attr('class', 'blueslice');
+
+		areaFraction = smallRadius*smallRadius/(radius*radius);
+	}
+
+	return areaFraction;
 }
 
 
