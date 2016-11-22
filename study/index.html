@@ -282,17 +282,15 @@
 				
 				switch(chartType) {
 					case 'baseline':
-						var centralAngle = Math.PI/50*percentage;
+						var centralAngle = drawStandardPie(drawInfo, percentage, rad(rotation), HEIGHT/2-5);
 						$('#angle').text(deg(centralAngle).toFixed(0));
-
-						drawStandardPie(drawInfo, centralAngle, rad(rotation), HEIGHT/2-5);
 					break;
 
 					case 'circular':
 						var params = drawCircularSegmentPie(drawInfo, percentage, rad(rotation), HEIGHT/2-5);
 
 						$('#areaFraction').text((params.areaFraction*100).toFixed(0));
-						$('#distance').text(params.distance);
+						$('#distance').text(params.distance.toFixed(0));
 					break;
 				}
 

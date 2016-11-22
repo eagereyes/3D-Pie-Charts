@@ -28,11 +28,13 @@ function drawBasePie(drawInfo, rotation, radius) {
 	return g;
 }
 
-function drawStandardPie(drawInfo, angle, rotation, radius) {
+function drawStandardPie(drawInfo, percentage, rotation, radius) {
 
 	drawInfo.svg.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var angle = Math.PI/50*percentage;
 
 	x = Math.cos(angle)*radius;
 	y = -Math.sin(angle)*radius;
@@ -45,6 +47,7 @@ function drawStandardPie(drawInfo, angle, rotation, radius) {
 		.attr('d', points)
 		.attr('class', 'blueslice');
 
+	return angle;
 }
 
 // from http://mathworld.wolfram.com/Circle-CircleIntersection.html, R=r case
