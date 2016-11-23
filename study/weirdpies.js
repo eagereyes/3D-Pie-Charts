@@ -105,8 +105,46 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 		areaFraction = smallRadius*smallRadius/(radius*radius);
 	} else {
-		
+		var circleArea = radius*radius*Math.PI;
+		var optFunc = function(radiusArray) {
+			return Math.abs(circularLensAreaRadiusEqualsDistance(radius, radiusArray[0])/circleArea*100 - percentage);
+		}
+
+		var opt = numeric.uncmin(optFunc, [radius]);
+
+		console.log(opt);
+
+		var smallRadius = opt.solution[0];
 	}
+	
+		var circleArea = radius*radius*Math.PI;
+	var data = d3.range(radius/2, radius*2).map(function(d) { return Math.abs(circularLensAreaRadiusEqualsDistance(radius, d)/circleArea - percentage/100); });
+
+	var xScale = d3.scale.linear()
+		.domain([0, data.length])
+		.range([0, WIDTH]);
+
+	var yScale = d3.scale.linear()
+		.domain(d3.extent(data))
+		.range([HEIGHT, 0]);
+
+	var line = d3.svg.line()
+		.x(function(d, i) { return xScale(i); })
+		.y(function(d) { return yScale(d); } );
+	
+		drawInfo.svg.selectAll('path').remove();
+
+	drawInfo.svg.append('path')
+		.datum(data)
+		.attr('d', line)
+		.attr('class', 'blueline');
+
+	drawInfo.svg.append('line')
+		.attr('x1', 0)
+		.attr('y1', yScale(0))
+		.attr('x2', WIDTH)
+		.attr('y2', yScale(0))
+		.attr('class', 'blueline');
 
 	return areaFraction;
 }
