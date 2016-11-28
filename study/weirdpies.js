@@ -125,11 +125,23 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 			return circularLensAreaRadiusEqualsDistance(radius, distance)/circleArea - percentage/100;
 		}
 
-		var distance = binaryZeroSearch(optFunc, radius/2, radius*10, optFunc(radius/2), optFunc(radius*10));
+		var distance = binaryZeroSearch(optFunc, radius/2, radius*20, optFunc(radius/2), optFunc(radius*10));
 
 		areaFraction = circularLensAreaRadiusEqualsDistance(radius, distance)/circleArea;
 
+		// x = (d^2-r^2+R^2)/2d, but d=r
+		var x = radius*radius/(distance+distance);
 
+		var y = Math.sqrt(radius*radius-x*x);
+
+		var path = 'M '+x+','+y+
+					' A '+radius+','+radius+' 0 0,0 '+x+','+(-y)+
+				 	' A '+distance+','+distance+' 0 '+(distance<x?'1':'0')+',0 '+x+','+y+
+					' Z';
+
+		g.append('path')
+			.attr('d', path)
+			.attr('class', 'blueslice');
 
 		// var data = d3.range(radius/2, radius*2).map(optFunc);
 
