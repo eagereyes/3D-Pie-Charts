@@ -15,7 +15,7 @@ function lineRectIntersect(angle, radius, width, height) {
 	return {x: x, y: y};
 }
 
-function drawBasePie(drawInfo, rotation, radius) {
+function drawBasePie(drawInfo, rotation, radius, circleClass) {
 	var g = drawInfo.svg.append('g')
 		.attr('transform', 'translate('+WIDTH/2+','+HEIGHT/2+') rotate('+deg(-rotation)+')');
 
@@ -23,7 +23,7 @@ function drawBasePie(drawInfo, rotation, radius) {
 		.attr('cx', 0)
 		.attr('cy', 0)
 		.attr('r', radius)
-		.attr('class', 'grayslice');
+		.attr('class', circleClass?circleClass:'grayslice');
 
 	return g;
 }
@@ -103,9 +103,15 @@ function binaryZeroSearch(func, min, max, minVal, maxVal) {
 }
 
 function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) {
+
+	var greaterThan50 = percentage > 50;
+
+	if (greaterThan50)
+		percentage = 100-percentage;
+
 	drawInfo.svg.selectAll('g').remove();
 
-	var g = drawBasePie(drawInfo, rotation, radius);
+	var g = drawBasePie(drawInfo, greaterThan50?(Math.PI+rotation):rotation, radius, greaterThan50?'blueslice':'grayslice');
 
 	var areaFraction = 0;
 
@@ -116,7 +122,7 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 			.attr('cx', smallRadius)
 			.attr('cy', 0)
 			.attr('r', smallRadius)
-			.attr('class', 'blueslice');
+			.attr('class', greaterThan50?'grayslice':'blueslice');
 
 		areaFraction = smallRadius*smallRadius/(radius*radius);
 	} else {
@@ -141,7 +147,7 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 		g.append('path')
 			.attr('d', path)
-			.attr('class', 'blueslice');
+			.attr('class', greaterThan50?'grayslice':'blueslice');
 
 		// var data = d3.range(radius/2, radius*2).map(optFunc);
 
