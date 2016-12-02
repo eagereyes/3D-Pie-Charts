@@ -32,9 +32,9 @@ function drawStandardPie(drawInfo, percentage, rotation, radius) {
 
 	drawInfo.svg.selectAll('g').remove();
 
-	var g = drawBasePie(drawInfo, rotation, radius);
-
 	var angle = Math.PI/50*percentage;
+
+	var g = drawBasePie(drawInfo, rotation-angle/2, radius);
 
 	x = Math.cos(angle)*radius;
 	y = -Math.sin(angle)*radius;
