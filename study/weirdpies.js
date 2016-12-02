@@ -65,8 +65,6 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 
 	var distance = binaryZeroSearch(optFunc, 0, radius*2, optFunc(0), optFunc(radius*2));
 
-	console.log('distance: '+distance);
-
 	var areaFraction = circularLensAreaSameRadius(radius, distance) / circleArea;
 
 	var x = distance/2;
@@ -199,6 +197,28 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 	return areaFraction;
 }
 
+function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
+
+	drawInfo.svg.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var smallRadius = radius*Math.sqrt(percentage/100);
+
+	var x = 0;
+
+	if (centered == false) {
+		x = radius-smallRadius;
+	}
+
+	g.append('circle')
+		.attr('cx', x)
+		.attr('cy', 0)
+		.attr('r', smallRadius)
+		.attr('class', 'blueslice');
+
+	return smallRadius*smallRadius/(radius*radius);
+}
 
 function makeSVG() {
 
