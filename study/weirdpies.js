@@ -129,17 +129,20 @@ function circularLensAreaRadiusEqualsDistance(radius1, radius2) {
 			Math.sqrt(radius1*(radius2+radius2-radius1)*radius1*(radius2+radius2+radius1))/2;
 }
 
-function binaryZeroSearch(func, min, max, minVal, maxVal) {
+function binaryZeroSearch(func, min, max, minVal, maxVal, epsilon) {
+
+	epsilon = epsilon || 1;
+
 	var mid = (min+max)/2;
 
-	if (max-min < 1) {
+	if (max-min < epsilon) {
 		return mid;
 	} else {
 		var midVal = func(mid);
 		if (Math.sign(minVal) != Math.sign(midVal)) {
-			return binaryZeroSearch(func, min, mid, minVal, midVal);
+			return binaryZeroSearch(func, min, mid, minVal, midVal, epsilon);
 		} else {
-			return binaryZeroSearch(func, mid, max, midVal, maxVal);
+			return binaryZeroSearch(func, mid, max, midVal, maxVal, epsilon);
 		}
 	}
 }
@@ -199,8 +202,6 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
 
-	drawInfo.svg.selectAll('g').remove();
-
 	var g = drawBasePie(drawInfo, rotation, radius);
 
 	var smallRadius = radius*Math.sqrt(percentage/100);
@@ -218,6 +219,52 @@ function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
 		.attr('class', 'blueslice');
 
 	return smallRadius*smallRadius/(radius*radius);
+}
+
+function offCenterSliceArea(largeRadius, smallRadius, angle) {
+	var x = largeRadius*Math.cos(angle);
+	var y = largeRadius*Math.sin(angle);
+	var xP = smallRadius*Math.cos(angle/2);
+	var yP = smallRadius*Math.sin(angle/2);
+
+	var a = Math.sqrt((largeRadius-xP) * (largeRadius-xP)+yP*yP);
+	var b = Math.sqrt((largeRadius-x) * (largeRadius-x)+y*y);
+	var h = Math.sqrt(a*a - (b/2)*(b/2));
+
+	var areaSmallTriangle = b * h / 2;
+
+	var areaWedge = largeRadius*largeRadius*Math.PI*angle/(2*Math.PI);
+
+	var areaLargeTriangle = (smallRadius+h) * b / 2;
+
+	return areaWedge-areaLargeTriangle+areaSmallTriangle;
+}
+
+function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadius) {
+
+	var circleArea = largeRadius*largeRadius*Math.PI;
+
+	var optFunc = function(angle) {
+		return offCenterSliceArea(largeRadius, smallRadius, angle)/circleArea - percentage/100;
+	}
+
+	var angle = binaryZeroSearch(optFunc, 0, 2*Math.PI, optFunc(0), optFunc(2*Math.PI), .01);
+
+	var g = drawBasePie(drawInfo, rotation, largeRadius);
+
+	var x = largeRadius*Math.cos(angle/2);
+	var y = largeRadius*Math.sin(angle/2);
+
+	var d = 'M '+smallRadius+',0 L '+x+','+y+
+			' A '+largeRadius+','+largeRadius+' 0,'+(angle<Math.PI?'0':'1')+' 0 '+x+','+(-y)+
+			' L '+smallRadius+',0 Z';
+
+	g.append('path')
+		.attr('d', d)
+		.attr('class', 'blueslice');
+
+	return offCenterSliceArea(largeRadius, smallRadius, angle)/circleArea;
+
 }
 
 function makeSVG() {
