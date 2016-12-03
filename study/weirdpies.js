@@ -160,7 +160,9 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 	var areaFraction = 0;
 
-	if (percentage <= 25) {
+	if (percentage == 50) {
+		drawStandardPie(drawInfo, percentage, rotation, radius);
+	} else if (percentage <= 25) {
 		var smallRadius = Math.sqrt(radius*radius*percentage/100);
 
 		g.append('circle')
