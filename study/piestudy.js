@@ -1,13 +1,11 @@
 
-var VIEWANGLES = [90, 60, 30, 15];
+var VARIATIONS = ['baseline', 'circular', 'circular-center', 'off-center', 'centered-circle', 'centered-square', 'floating-circle']
 
-var HEIGHTS = [0, 10, 50]
+var VALUES_1 = [ 2,  3,  4,  6,  7,  8,  9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 24];
+var VALUES_2 = [26, 27, 28, 29, 31, 32, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49];
+var VALUES_3 = [51, 52, 53, 54, 56, 57, 58, 59, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74];
+var VALUES_4 = [76, 77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 96, 97];
 
-var NUMS_LOW = [4,7,7,7,9,9,10,10,11,11,12,12,14,16,16,18,18,18,19,20,20,21,22,23,24,25,26,26,27,27,28,32,32];
-
-var NUMS_MID = [34,35,37,37,38,39,40,41,43,43,47,47,49,50,50,52,53,55,56,56,56,57,59,59,60,61,61,63,65,66];
-
-var NUMS_HIGH = [67,68,70,73,74,74,76,76,76,76,79,80,83,84,85,86,88,89,91,91,93,93,93,94,95,95,96];
 
 var NUM_ROTATIONS = 3;
 
@@ -22,15 +20,15 @@ var inBreak = false;
  * Need to be converted to radians for drawing.
  */
 function makeTrials(resultID, condition, demographics) {
-
-	d3.shuffle(NUMS_LOW);
-	d3.shuffle(NUMS_MID);
-	d3.shuffle(NUMS_HIGH);
 	
 	var nums = [NUMS_LOW, NUMS_MID, NUMS_HIGH];
 	var numIndex = [0, 0, 0];
 	
 	var trials = [];
+
+	for (var i = 0; i < VARIATIONS.length; i++) {
+
+	}
 
 	for (var i = 0; i < VIEWANGLES.length; i++) {
 
