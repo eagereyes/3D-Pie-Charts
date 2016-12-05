@@ -204,6 +204,8 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
 
+	drawInfo.svg.selectAll('g').remove();
+
 	var g = drawBasePie(drawInfo, rotation, radius);
 
 	var smallRadius = radius*Math.sqrt(percentage/100);
@@ -221,6 +223,60 @@ function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
 		.attr('class', 'blueslice');
 
 	return smallRadius*smallRadius/(radius*radius);
+}
+
+// Formula from http://math.stackexchange.com/questions/1450961/overlapping-area-between-a-circle-and-a-square
+function circleSquareIntersectionArea(radius, side) {
+	var theta = Math.acos(side/radius);
+
+	return (Math.PI-4*theta)*radius*radius + 4*side*radius*Math.sin(theta);
+}
+
+function drawCenteredSquarePie(drawInfo, percentage, rotation, radius) {
+
+	drawInfo.svg.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var circleArea = radius*radius*Math.PI;
+
+	var squareArea = circleArea*percentage/100;
+
+	var size = Math.sqrt(squareArea);
+
+	if (radius*radius >= size*size/2) { // square fits into circle
+		g.append('rect')
+			.attr('x', -size/2)
+			.attr('y', -size/2)
+			.attr('width', size)
+			.attr('height', size)
+			.attr('class', 'blueslice');
+		
+		return squareArea/circleArea;
+
+	} else {
+
+		var optFunc = function(side) {
+			return circleSquareIntersectionArea(radius, side)/circleArea - percentage/100;
+		}
+
+		var size = binaryZeroSearch(optFunc, radius/2, radius*2, optFunc(radius/2), optFunc(radius*2));
+
+		var x = size;
+		var y = Math.sqrt(radius*radius-size*size);
+
+		var d = 'M '+x+','+y+' A '+radius+','+radius+' 0,0 1 '+y+','+x+' L '+(-y)+','+x+
+				' A '+radius+','+radius+' 0,0 1 '+(-x)+','+y+' L '+(-x)+','+(-y)+
+				' A '+radius+','+radius+' 0,0 1 '+(-y)+','+(-x)+' L '+y+','+(-x)+
+				' A '+radius+','+radius+' 0,0 1 '+x+','+(-y)+
+				' Z';
+
+		g.append('path')
+			.attr('d', d)
+			.attr('class', 'blueslice');
+
+		return circleSquareIntersectionArea(radius, size)/circleArea;
+	}
 }
 
 function offCenterSliceArea(largeRadius, smallRadius, angle) {
@@ -251,6 +307,8 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 	}
 
 	var angle = binaryZeroSearch(optFunc, 0, 2*Math.PI, optFunc(0), optFunc(2*Math.PI), .01);
+
+	drawInfo.svg.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, largeRadius);
 

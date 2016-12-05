@@ -227,6 +227,9 @@
 						<label><input type="radio" name="charttype" id="charttype-centered-circle" value="centered-circle"> Centered circle</label>
 					</div>
 					<div class="radio">
+						<label><input type="radio" name="charttype" id="charttype-centered-square" value="centered-square"> Centered square</label>
+					</div>
+					<div class="radio">
 						<label><input type="radio" name="charttype" id="charttype-floating-circle" value="floating-circle"> Floating circle</label>
 					</div>
 
@@ -318,6 +321,11 @@
 
 					case 'centered-circle':
 						var areaFraction = drawSmallCirclePie(drawInfo, percentage, rad(rotation), radius, true);
+						$('#areaFraction').text((areaFraction*100).toFixed(0));
+					break;
+
+					case 'centered-square':
+						var areaFraction = drawCenteredSquarePie(drawInfo, percentage, rad(rotation), radius);
 						$('#areaFraction').text((areaFraction*100).toFixed(0));
 					break;
 
