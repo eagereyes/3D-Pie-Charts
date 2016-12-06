@@ -6,7 +6,6 @@ var VALUES_2 = [26, 27, 28, 29, 31, 32, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 
 var VALUES_3 = [51, 52, 53, 54, 56, 57, 58, 59, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74];
 var VALUES_4 = [76, 77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 96, 97];
 
-
 var NUM_ROTATIONS = 3;
 
 var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit_csv.php';
@@ -21,49 +20,31 @@ var inBreak = false;
  */
 function makeTrials(resultID, condition, demographics) {
 	
-	var nums = [NUMS_LOW, NUMS_MID, NUMS_HIGH];
+	var nums = [VALUES_1, VALUES_2, VALUES_3, VALUES_4];
 	var numIndex = [0, 0, 0];
 	
 	var trials = [];
 
 	for (var i = 0; i < VARIATIONS.length; i++) {
+		for (var j = 0; j < nums.length; j++) {
+			for (var k = 0; k < NUM_ROTATIONS; k++) {
 
-	}
+				var value = nums[j][Math.floor(Math.random()*nums[j].length)];
 
-	for (var i = 0; i < VIEWANGLES.length; i++) {
+				var trial = {
+					resultID: resultID,
+					variation: VARIATIONS[i],
+					percentage: value,
+					rotation: Math.floor(Math.random()*360),
+					age: demographics.age,
+					sex: demographics.sex,
+					degree: demographics.degree
+				};
 
-		for (var j = 0; j < HEIGHTS.length; j++) {
-			
-			if (i == 0 && j > 0)
-				continue;
-
-			for (var r = 0; r < NUM_ROTATIONS; r++) {
-							
-				for (var k = 0; k < nums.length; k++) {
-					
-					var value = nums[k][numIndex[k]];
-					
-					numIndex[k] = (numIndex[k] + 1) % nums[k].length;
-					
-					var trial = {
-						resultID: resultID,
-						condition: condition,
-						viewAngle: VIEWANGLES[i],
-						height: HEIGHTS[j],
-						value: value,
-						centralAngle: value/100.*360,
-						rotation: Math.floor(Math.random()*360),
-						age: demographics.age,
-						sex: demographics.sex,
-						degree: demographics.degree,
-						issue: ''
-					};
-					
-					trials.push(trial);
-				}
+				trials.push(trial);
 			}
 		}
-	}	
+	}
 	
 	d3.shuffle(trials);
 	
@@ -123,7 +104,8 @@ function nextStep() {
 
 function updatePie() {
 	var trial = trials[trialIndex];
-	draw3DPie(drawInfo, rad(trial.centralAngle), rad(trial.viewAngle), rad(trial.rotation), HEIGHT/2, trial.height);
+	var radius = HEIGHT/2-5;
+	drawWeirdPie(drawInfo, radius, trial.rotation, trial.percentage, trial.variation);
 	trials[trialIndex].startTime = (new Date()).getTime();
 	$('#percent').focus();
 }

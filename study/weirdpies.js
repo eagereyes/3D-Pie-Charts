@@ -77,47 +77,11 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 
 	drawInfo.svg.selectAll('g').remove();
 
-	// drawInfo.svg.selectAll('path').remove();
-	// drawInfo.svg.selectAll('line').remove();
-
 	var g = drawBasePie(drawInfo, rotation, radius);
 
 	g.append('path')
 		.attr('d', path)
 		.attr('class', 'blueslice');
-
-	// var data = d3.range(0, radius*2).map(optFunc);
-
-	// var xScale = d3.scale.linear()
-	// 	.domain([0, data.length])
-	// 	.range([0, WIDTH]);
-
-	// var yScale = d3.scale.linear()
-	// 	.domain(d3.extent(data))
-	// 	.range([HEIGHT, 0]);
-
-	// var line = d3.svg.line()
-	// 	.x(function(d, i) { return xScale(i); })
-	// 	.y(function(d) { return yScale(d); } );
-	
-	// drawInfo.svg.append('path')
-	// 	.datum(data)
-	// 	.attr('d', line)
-	// 	.attr('class', 'blueline');
-
-	// drawInfo.svg.append('line')
-	// 	.attr('x1', 0)
-	// 	.attr('y1', yScale(0))
-	// 	.attr('x2', WIDTH)
-	// 	.attr('y2', yScale(0))
-	// 	.attr('class', 'blueline');
-
-	// drawInfo.svg.append('line')
-	// 	.attr('x1', xScale(distance))
-	// 	.attr('y1', 0)
-	// 	.attr('x2', xScale(distance))
-	// 	.attr('y2', HEIGHT)
-	// 	.attr('class', 'blueline');
 
 	return {areaFraction: areaFraction, distance: distance};
 }
@@ -325,6 +289,47 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 
 	return offCenterSliceArea(largeRadius, smallRadius, angle)/circleArea;
 
+}
+
+function drawWeirdPie(drawInfo, radius, rotation, percentage, chartType) {
+	switch(chartType) {
+		case 'baseline':
+			var centralAngle = drawStandardPie(drawInfo, percentage, rad(rotation), radius);
+			$('#angle').text(deg(centralAngle).toFixed(0));
+		break;
+
+		case 'circular':
+			var params = drawCircularSegmentPie(drawInfo, percentage, rad(rotation), radius);
+
+			$('#areaFraction').text((params.areaFraction*100).toFixed(0));
+			$('#distance').text(params.distance.toFixed(0));
+		break;
+
+		case 'circular-center':
+			var areaFraction = drawCenteredCircularSegmentPie(drawInfo, percentage, rad(rotation), radius);
+			$('#areaFraction').text((areaFraction*100).toFixed(0));
+		break;
+
+		case 'off-center':
+			var areaFraction = drawOffCenterPie(drawInfo, percentage, rad(rotation), radius, radius/3);
+			$('#areaFraction').text((areaFraction*100).toFixed(0));
+		break;
+
+		case 'centered-circle':
+			var areaFraction = drawSmallCirclePie(drawInfo, percentage, rad(rotation), radius, true);
+			$('#areaFraction').text((areaFraction*100).toFixed(0));
+		break;
+
+		case 'centered-square':
+			var areaFraction = drawCenteredSquarePie(drawInfo, percentage, rad(rotation), radius);
+			$('#areaFraction').text((areaFraction*100).toFixed(0));
+		break;
+
+		case 'floating-circle':
+			var areaFraction = drawSmallCirclePie(drawInfo, percentage, rad(rotation), radius, false);
+			$('#areaFraction').text((areaFraction*100).toFixed(0));
+		break;
+	}
 }
 
 function makeSVG() {
