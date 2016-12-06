@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Pie Chart Study</title>
+		<title>Area Charts Study</title>
 		 <link href="css/bootstrap.min.css" rel="stylesheet">
 		<script src="js/d3.min.js" charset="utf-8"></script>
 		<script src="js/numbers.min.js"></script>
@@ -95,15 +95,12 @@
 	<body>
 		<div class="row" id="instructions">
 			<div class="col-md-6 col-md-offset-1">
-				<h1>Pie Charts Study</h1>
-				<p>This study examines how well people can read different pie charts.
-					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
-				<div id="cond2">
-					<p><strong>Here's how to read these charts: Look at how much area is blue compared to the entire chart.
-						3D pie charts distort the angle of the slice, but not the area as a fraction of the whole! Your accuracy will be much higher if you go by area rather than by angle.</strong></p>
-				</div>
+				<h1>Area Charts Study</h1>
+				<p><strong>Please read these instructions carefully before continuing!</strong></p>
+				<p>This study examines how well people can read area in charts that represent a value using area. Some of these charts will look like pie charts, most will be a bit unusual though.</p>
+				<p>Your task is to read the value that is shown in the blue (darker) part of each chart as a percentage. Regardless of the shape of the blue part, estimate the area covered by it as a percentage of the entire circle.</p>
 				<p>Please answer as accurately as possible, but don't dwell on individual charts. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
-				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
+				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions. There will be a progress bar at the bottom showing you where tou are in the study.</p>
 				<p>In most browsers, you can enter a number into the answer field and then hit <em>Return</em> or <em>Enter</em> to advance to the next question. That is the faster way, but you can also click the <em>Next</em> button (especially if you're using Internet Explorer).</p>
 				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
@@ -148,20 +145,9 @@
 				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="potentialNagScreen();">Start Study</button>
 			</div>
 		</div>
-		<div class="row" id="cond2question">
-			<div class="col-md-6 col-md-offset-1">
-				<h1>How are you supposed to read the charts?</h1>
-				<div class="radio"><label><input type="radio" name="how" value="angle"> Angle</label></div>
-				<div class="radio"><label><input type="radio" name="how" value="area"> Area</label></div>
-				<div class="radio"><label><input type="radio" name="how" value="arc"> Arc Length</label></div>
-				<p class="bg-danger error" id="cond2Wrong">Wrong! Please try again!</p>
-				<p class="bg-success error" id="cond2Correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.</p><br/>
-				<button class="btn btn-primary pull-right" id="cond2Start" type="button" disabled="disabled" onclick="startStudy();">Start Study</button></p>
-			</div>
-		</div>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-1" id="question">
-				<h4>What part of the whole (in percent) does the <span class="blue">blue slice</span> represent?</h4>
+				<h4>What part of the whole (in percent) does the <span class="blue">blue part</span> represent?</h4>
 			</div>
 		</div>
 		<div class="row">
