@@ -332,6 +332,34 @@ function drawWeirdPie(drawInfo, radius, rotation, percentage, chartType) {
 	}
 }
 
+function drawGrid(drawInfo, rotation) {
+
+	var padding = 7;
+
+	var size = (HEIGHT-(VARIATIONS.length-1)*padding)/VARIATIONS.length;
+
+	var VALUES = [3, 10, 33, 50, 66, 90, 97];
+
+	var baseG = drawInfo.baseG;
+
+	baseG.selectAll('g').remove();
+
+	for (var i = 0; i < VARIATIONS.length; i++) {
+
+		for (var j = 0; j < VALUES.length; j++) {
+
+			var g = baseG.append('g')
+				.attr('transform', 'translate ('+(j*(size+padding)-WIDTH/2+size/2)+','+(i*(size+padding)-HEIGHT/2+size/2)+')');
+			
+			drawInfo.baseG = g;
+
+			drawWeirdPie(drawInfo, size/2, rotation, VALUES[j], VARIATIONS[i]);
+		}
+	}
+
+	drawInfo.baseG = baseG;
+}
+
 function init() {
 	var svg = d3.select('#pie').select('svg');
 	

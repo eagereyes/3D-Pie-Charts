@@ -219,6 +219,10 @@
 					<div class="radio">
 						<label><input type="radio" name="charttype" id="charttype-floating-circle" value="floating-circle"> Floating circle</label>
 					</div>
+					<div class="radio">
+						<label><input type="radio" name="charttype" id="charttype-grid" value="grid"> Grid</label>
+					</div>
+
 
 					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="30" id="percentage" oninput="redraw();"></label><br/>
 					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
@@ -283,8 +287,11 @@
 				
 				var radius = HEIGHT/2-5;
 
-				drawWeirdPie(drawInfo, radius, rotation, percentage, chartType);
-
+				if (chartType == 'grid') {
+					drawGrid(drawInfo, rotation);
+				} else {
+					drawWeirdPie(drawInfo, radius, rotation, percentage, chartType);
+				}
 			}
 
 			function validateDemographics() {
