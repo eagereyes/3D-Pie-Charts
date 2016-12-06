@@ -18,7 +18,7 @@ var inBreak = false;
  * Make the combinations for the study trials. All angles here are in degrees for nicer logging.
  * Need to be converted to radians for drawing.
  */
-function makeTrials(resultID, condition, demographics) {
+function makeTrials(resultID, demographics, source) {
 	
 	var nums = [VALUES_1, VALUES_2, VALUES_3, VALUES_4];
 	var numIndex = [0, 0, 0];
@@ -33,6 +33,7 @@ function makeTrials(resultID, condition, demographics) {
 
 				var trial = {
 					resultID: resultID,
+					source: source,
 					variation: VARIATIONS[i],
 					percentage: value,
 					rotation: Math.floor(Math.random()*360),
