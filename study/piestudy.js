@@ -8,7 +8,7 @@ var VALUES_4 = [76, 77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 
 
 var NUM_ROTATIONS = 3;
 
-var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit_csv.php';
+var RESULTSURL = 'http://study.eagereyes.org/area-charts/submit_csv.php';
 
 var trialIndex = 0;
 
