@@ -16,7 +16,7 @@ function lineRectIntersect(angle, radius, width, height) {
 }
 
 function drawBasePie(drawInfo, rotation, radius, circleClass) {
-	var g = drawInfo.svg.append('g')
+	var g = drawInfo.baseG.append('g')
 		.attr('transform', 'translate('+WIDTH/2+','+HEIGHT/2+') rotate('+deg(-rotation)+')');
 
 	g.append('circle')
@@ -30,7 +30,7 @@ function drawBasePie(drawInfo, rotation, radius, circleClass) {
 
 function drawStandardPie(drawInfo, percentage, rotation, radius) {
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var angle = Math.PI/50*percentage;
 
@@ -75,7 +75,7 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 
 	path += 'A '+radius+','+radius+' 0,0 0 '+x+','+y+' Z';
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, radius);
 
@@ -118,7 +118,7 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 	if (greaterThan50)
 		percentage = 100-percentage;
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, greaterThan50?(Math.PI+rotation):rotation, radius, greaterThan50?'blueslice':'grayslice');
 
@@ -168,7 +168,7 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 function drawSmallCirclePie(drawInfo, percentage, rotation, radius, centered) {
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, radius);
 
@@ -198,7 +198,7 @@ function circleSquareIntersectionArea(radius, side) {
 
 function drawCenteredSquarePie(drawInfo, percentage, rotation, radius) {
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, radius);
 
@@ -272,7 +272,7 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 
 	var angle = binaryZeroSearch(optFunc, 0, 2*Math.PI, optFunc(0), optFunc(2*Math.PI), .01);
 
-	drawInfo.svg.selectAll('g').remove();
+	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, largeRadius);
 
@@ -332,17 +332,11 @@ function drawWeirdPie(drawInfo, radius, rotation, percentage, chartType) {
 	}
 }
 
-function makeSVG() {
-
-	var svg = d3.select('#pie').select('svg');
-
-	return svg;		
-}
-
 function init() {
-	var drawInfo = {}
+	var svg = d3.select('#pie').select('svg');
 	
-	drawInfo.svg = makeSVG();
-	
-	return drawInfo;
+	var baseG = svg.append('g')
+		.attr('class', 'base');
+
+	return {svg: svg, baseG: baseG};
 }
