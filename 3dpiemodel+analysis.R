@@ -92,13 +92,14 @@ projectAngle <- function(alpha, theta, rho) {
 	list(thetaProj = centralProj, rhoProj = rotationProj)
 }
 
-classifyDirection <- function(bisectorAngle) {
+classifyOrientation <- function(bisectorAngle) {
 	ifelse((bisectorAngle > 30) & (bisectorAngle < 150), 'Back',
 		   ifelse ((bisectorAngle > 210) & (bisectorAngle < 330),
 		   'Front', 'Side'))
 }
 
-classifyDirection45 <- function(bisectorAngle) {
+classifyOrientation45 <- function(bisectorAngle) {
+	bisectorAngle <- mod(bisectorAngle, 360)
 	ifelse((bisectorAngle > 45) & (bisectorAngle < 135), 'Back',
 		   ifelse ((bisectorAngle > 225) & (bisectorAngle < 315),
 		   		'Front', 'Side'))
@@ -169,7 +170,7 @@ data <- mutate(data,
 				opposite = (abs(100-value-answer) < absError) & (abs(50-value) > 5),
 				bisectorAngle = rotation+centralAngle/2,
 				bisectorProj = projectAngle(rad(viewAngle), rad(bisectorAngle), 0)$theta,
-				orientation = classifyDirection45(bisectorAngle),
+				orientation = factor(classifyOrientation45(bisectorAngle)),
 				viewAngle = factor(viewAngle, levels=c(90, 60, 30, 15))
 			)
 
@@ -221,8 +222,8 @@ ggplot(cond2(dataAggregated), aes(x=viewAngle, y=meanError, fill=factor(viewAngl
 	labs(x = "View Angle", y = "Error")
 
 # Error by view Angle for the two conditions
-ggplot(dataAggregated, aes(x=direction, y=meanError, fill=factor(direction))) +
-	geom_violin(size=1, aes(y=meanError, color=factor(direction)), show.legend=FALSE) +
+ggplot(dataAggregated, aes(x=orientation, y=meanError, fill=factor(orientation))) +
+	geom_violin(size=1, aes(y=meanError, color=factor(orientation)), show.legend=FALSE) +
 	stat_summary(fun.y=mean, geom="point", shape=5, size=3, show.legend=FALSE) +
 	labs(x = "View Angle", y = "Log Error") + facet_grid(condition ~ viewAngle)
 
@@ -364,6 +365,7 @@ rssModel1 <- sum(residuals(model1)^2)
 aicModel1 <- 2*4+length(dataFiltered)/2*log(rssModel1)
 
 # Use just the two factors with a real influence
+# Who picked these stupid names?
 model1b <- lm(answer ~ viewAngle + value, cond1(d))
 rssModel1b <- sum(residuals(model1b)^2)
 # k = 2 for this model?
@@ -445,3 +447,61 @@ ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanAbsError, fill=factor(viewA
 	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
 	labs(x = "View Angle", y = "Absolute Error")
 
+ggplot(cond1(dataAggregated), aes(x=viewAngle, y=meanAbsError, fill=factor(viewAngle))) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+	labs(x = "View Angle", y = "Absolute Error")
+
+#####
+#############
+#########
+######
+##
+
+model1bPredicted <- predict(model1b, mutate(dataFiltered, viewAngle = unclass(viewAngle)))
+dataFiltered <- cbind(dataFiltered, model1bPredicted)
+
+## Signed error by percentage
+ggplot(cond1(dataFiltered), aes(value, answer-value)) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	geom_smooth(aes(y=projFraction*100-value), color="orange") +
+	geom_smooth(aes(y=arcFraction*100-value), color="purple") +
+	geom_smooth(aes(y=model1bPredicted-value), color="blue") +
+	geom_smooth(aes(y=answer-value), color="black") +
+	facet_grid(orientation ~ viewAngle) +
+	labs(x = "Percentage, View Angle", y = "Error, Slice Orientation")
+
+## Absolute error by percentage
+ggplot(cond1(dataFiltered), aes(value, abs(answer-value))) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	geom_smooth(aes(y=abs(projFraction*100-value)), color="orange") +
+	geom_smooth(aes(y=abs(arcFraction*100-value)), color="purple") +
+	geom_smooth(aes(y=abs(model1bPredicted-value)), color="blue") +
+	geom_smooth(aes(y=abs(answer-value)), color="black") +
+	facet_grid(orientation ~ viewAngle) +
+	labs(x = "Percentage, View Angle", y = "Absolute Error, Slice Orientation")
+
+
+dataFiltered <- mutate(dataFiltered, angleClassified = factor(floor(centralAngle/90)*90, labels=c("0-89", "90-179", "180-269", "270-359")))
+
+# Signed error by rotation
+ggplot(cond1(dataFiltered), aes(mod(bisectorAngle, 360), answer-value)) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	geom_smooth(aes(y=projFraction*100-value), color="orange") +
+	geom_smooth(aes(y=arcFraction*100-value), color="purple") +
+	geom_smooth(aes(y=model1bPredicted-value), color="blue") +
+	geom_smooth(aes(y=answer-value), color="black") +
+#	facet_wrap(~ viewAngle, ncol=2) +
+	facet_grid(angleClassified ~ viewAngle) +
+	labs(x = "Rotation, View Angle", y = "Error, Central Angle Binned")
+
+# Absolute error by rotation
+ggplot(cond1(dataFiltered), aes(mod(bisectorAngle, 360), abs(answer-value))) +
+	geom_hline(yintercept=0, linetype="dotted") +
+	geom_smooth(aes(y=abs(projFraction*100-value)), color="orange") +
+	geom_smooth(aes(y=abs(arcFraction*100-value)), color="purple") +
+	geom_smooth(aes(y=abs(model1bPredicted-value)), color="blue") +
+	geom_smooth(aes(y=abs(answer-value)), color="black") +
+	#	facet_wrap(~ viewAngle, ncol=2) +
+	facet_grid(angleClassified ~ viewAngle) +
+	labs(x = "Rotation, View Angle", y = "Absolute Error, Central Angle Binned")
