@@ -6,7 +6,8 @@ data <- read.csv('weirdpiesresults.csv')
 data <- mutate(data,
 			   error = answer-percentage,
 			   absError = abs(error),
-			   relError = absError/percentage
+			   relError = absError/percentage,
+			   variation = factor(variation, c('baseline', 'circular', 'floating-circle', 'circular-center', 'off-center', 'centered-square', 'centered-circle'))
 			)
 
 dataFiltered <- filter(data, resultID != '1481037346102x826999')
@@ -50,15 +51,15 @@ ggplot(dataAggregated, aes(x=variation, y=meanError)) +
 	labs(x = "Variation", y = "Signed Error")
 
 # Normalized absolute error CIs
+# Is there a point in doing this, though?
 ggplot(dataAggregated, aes(x=variation, y=meanNormalizedAbsError)) +
 	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
 	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
 	geom_hline(yintercept=1, linetype="dotted") +
 	labs(x = "Variation", y = "Absolute Error")
 
-# Normalized signed error CIs
-ggplot(dataAggregated, aes(x=variation, y=meanNormalizedError)) +
-	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
-	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+ggplot(dataFiltered, aes(percentage, answer-percentage)) +
 	geom_hline(yintercept=0, linetype="dotted") +
-	labs(x = "Variation", y = "Signed Error")
+	geom_smooth() +
+	facet_grid(. ~ variation) +
+	labs(x = "Percentage, View Angle", y = "Error, Slice Orientation")
