@@ -2,6 +2,8 @@
 var WIDTH = 800;
 var HEIGHT = 610;
 
+var arcLengths;
+
 function lineRectIntersect(angle, radius, width, height) {
 	var x = width/2+Math.cos(angle)*radius;
 
@@ -71,6 +73,10 @@ function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
 
 	var y = Math.sqrt(radius*radius-x*x);
 
+	// theta is half the angle, since it's symmetrical around the x axis
+	var theta = Math.atan2(y, x);
+	arcLengths[percentage].circularSliceArc = theta/Math.PI;
+
 	var path = 'M '+x+','+y+' A '+radius+','+radius+' 0,0 0 '+x+','+(-y)+' ';
 
 	path += 'A '+radius+','+radius+' 0,0 0 '+x+','+y+' Z';
@@ -126,6 +132,7 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 	if (percentage == 50) {
 		drawStandardPie(drawInfo, percentage, rotation, radius);
+		arcLengths[50].centerSliceArc = .5;
 	} else if (percentage <= 25) {
 		var smallRadius = Math.sqrt(radius*radius*percentage/100);
 
@@ -136,6 +143,8 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 			.attr('class', greaterThan50?'grayslice':'blueslice');
 
 		areaFraction = smallRadius*smallRadius/(radius*radius);
+
+		arcLengths[greaterThan50?(100-percentage):percentage].centerSliceArc = greaterThan50?1:0;
 	} else {
 		var circleArea = radius*radius*Math.PI;
 		var optFunc = function(distance) {
@@ -151,6 +160,9 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 
 		var y = Math.sqrt(radius*radius-x*x);
 
+		var theta = Math.atan2(y, x);
+		arcLengths[greaterThan50?(100-percentage):percentage].centerSliceArc = greaterThan50?(1-theta/Math.PI):theta/Math.PI;
+
 		var path = 'M '+x+','+y+
 					' A '+radius+','+radius+' 0 0,0 '+x+','+(-y)+
 				 	' A '+distance+','+distance+' 0 '+(distance<x?'1':'0')+',0 '+x+','+y+
@@ -159,8 +171,6 @@ function drawCenteredCircularSegmentPie(drawInfo, percentage, rotation, radius) 
 		g.append('path')
 			.attr('d', path)
 			.attr('class', greaterThan50?'grayslice':'blueslice');
-
-
 	}
 
 	return areaFraction;
@@ -279,6 +289,9 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 	var x = largeRadius*Math.cos(angle/2);
 	var y = largeRadius*Math.sin(angle/2);
 
+	var theta = Math.atan2(y, x);
+	arcLengths[percentage].offCenterArc = theta/Math.PI;
+
 	var d = 'M '+smallRadius+',0 L '+x+','+y+
 			' A '+largeRadius+','+largeRadius+' 0,'+(angle<Math.PI?'0':'1')+' 0 '+x+','+(-y)+
 			' L '+smallRadius+',0 Z';
@@ -366,5 +379,26 @@ function init() {
 	var baseG = svg.append('g')
 		.attr('class', 'base');
 
+	arcLengths = d3.range(100).map(function(percent) {
+		return {
+			percent: percent,
+			pieArc: percent/100,
+			circularSliceArc: -1,
+			centerSliceArc: -1,
+			offCenterArc: -1
+		};
+	});
+
 	return {svg: svg, baseG: baseG};
+}
+
+function calculateArcLengths() {
+	d3.range(100).forEach(function(p) {
+		drawCircularSegmentPie(drawInfo, p, 0, HEIGHT/2-5, false);
+		drawCenteredCircularSegmentPie(drawInfo, p, 0, HEIGHT/2-5);
+		drawOffCenterPie(drawInfo, p, 0, HEIGHT/2-5, (HEIGHT/2-5)/3);
+	});
+
+	var csvString = d3.csv.format(arcLengths, ['percent', 'pieArc', 'circularSliceArc', 'centerSliceArc', 'offCenterSliceArc']);
+	console.log(csvString);
 }
