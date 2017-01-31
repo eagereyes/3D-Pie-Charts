@@ -417,6 +417,6 @@ function calculateArcLengths() {
 		drawOffCenterPie(drawInfo, p, 0, HEIGHT/2-5, (HEIGHT/2-5)/3);
 	});
 
-	var csvString = d3.csv.format(arcLengths, ['percent', 'variation', 'arcPercentage']);
+	var csvString = d3.csv.format(arcLengths, ['percentage', 'variation', 'arcPercentage']);
 	console.log(csvString);
 }
