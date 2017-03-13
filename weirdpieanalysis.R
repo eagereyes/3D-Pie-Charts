@@ -3,14 +3,19 @@ library('dplyr')
 
 data <- read.csv('weirdpiesresults.csv')
 
-data <- mutate(data,
+# Filter out the one participant with much higher error
+dataFiltered <- filter(data, resultID != '1481037346102x826999')
+
+#Only look at MTurk data for now
+dataFiltered <- filter(dataFiltered, source == 'mturk')
+
+dataFiltered <- mutate(dataFiltered,
 			   error = answer-percentage,
 			   absError = abs(error),
 			   relError = absError/percentage,
 			   variation = factor(variation, c('baseline', 'circular', 'floating-circle', 'circular-center', 'off-center', 'centered-square', 'centered-circle'))
 			)
 
-dataFiltered <- filter(data, resultID != '1481037346102x826999')
 
 baseline <- dataFiltered %>%
 	filter(variation == 'baseline') %>%
@@ -62,4 +67,26 @@ ggplot(dataFiltered, aes(percentage, answer-percentage)) +
 	geom_hline(yintercept=0, linetype="dotted") +
 	geom_smooth() +
 	facet_grid(. ~ variation) +
-	labs(x = "Percentage, View Angle", y = "Error, Slice Orientation")
+	labs(x = "Percentage, View Angle", y = "Error")
+
+# ANOVA for absolute error
+summary(aov(meanAbsError ~ variation, dataAggregated))
+
+# ANOVA for signed error
+summary(aov(meanError ~ variation, dataAggregated))
+
+# Bring in the arc data
+arcs <- read.csv('weirdpie-arcs.csv')
+
+# Filter down to just the variations that have arc percentages
+# then join in the arc data
+dataWithArcs <- data %>%
+	filter(variation == 'baseline' | variation == 'circular' | variation == 'circular-center' | variation == 'off-center') %>%
+	left_join(arcs, by = c('percentage', 'variation')) %>%
+	mutate(arcError = answer-arcPercentage*100, absArcError = abs(arcError))
+
+dataWithArcsAggregated <- dataWithArcs %>%
+	group_by(resultID, variation) %>%
+	summarize(meanError = mean(error), meanAbsError = mean(absError),
+			  meanArcError = mean(arcError), meanAbsArcError = mean(absArcError))
+
