@@ -27,6 +27,26 @@
 				fill: steelblue
 			}
 			
+			.slice-0 {
+				fill: chocolate;
+			}
+
+			.slice-1 {
+				fill: turquoise;
+			}
+
+			.slice-2 {
+				fill: cornflowerblue;
+			}
+
+			.slice-3 {
+				fill: crimson;
+			}
+
+			.slice-4 {
+				fill: yellow;
+			}
+
 			.bluepattern {
 				fill: url(#bluePattern);
 			}
@@ -226,7 +246,15 @@
 
 					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="30" id="percentage" oninput="redraw();"></label><br/>
 					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
+					<label>Slices: <span id="slicesVal"></span> <input type="range" min="2" max="5" value="2" id="slices" oninput="redraw();"></label><br />
 					
+					<div class="radio">
+						<label><input type="radio" name="distribution" id="distribution-power" value="power" checked> Power Law</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="distribution" id="distribution-similar" value="similar"> Similar Values</label>
+					</div>
+
 					Angle: <span id="angle"></span>&deg;<br/>
 					Fraction: <span id="fraction"></span><br />
 					Area Fraction: <span id="areaFraction"></span>%<br />
@@ -277,6 +305,20 @@
 				redraw();
 			}
 
+			function makeValues(numSlices, startVal) {
+				var a = [];
+				var val = startVal;
+				var rest = 100;
+				for (var i = 1; i < numSlices; i++) {
+					a.unshift(val);
+					rest -= val;
+					val /= 2;
+				}
+				a.unshift(rest);
+
+				return a;
+			}
+
 			function redraw() {
 
 				var percentage = +$('#percentage')[0].value;
@@ -284,13 +326,16 @@
 				
 				var rotation = +$('#rotation')[0].value;
 				$('#rotationVal').text(rotation);
-				
+
+				var numSlices = +$('#slices')[0].value;
+				$('#slicesVal').text(numSlices);
+
 				var radius = HEIGHT/2-5;
 
 				if (chartType == 'grid') {
 					drawGrid(drawInfo, rotation);
 				} else {
-					drawWeirdPie(drawInfo, radius, rotation, percentage, chartType);
+					drawWeirdPie(drawInfo, radius, rotation, makeValues(numSlices, percentage), chartType);
 				}
 			}
 

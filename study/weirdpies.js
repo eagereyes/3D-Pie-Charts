@@ -30,24 +30,33 @@ function drawBasePie(drawInfo, rotation, radius, circleClass) {
 	return g;
 }
 
-function drawStandardPie(drawInfo, percentage, rotation, radius) {
+function drawStandardPie(drawInfo, values, rotation, radius) {
 
 	drawInfo.baseG.selectAll('g').remove();
 
-	var angle = Math.PI/50*percentage;
+	var angle = Math.PI/50*values[0];
 
-	var g = drawBasePie(drawInfo, rotation-angle/2, radius);
+	var g = drawBasePie(drawInfo, 0, radius);
 
-	x = Math.cos(angle)*radius;
-	y = -Math.sin(angle)*radius;
+	for (var i = 0; i < values.length; i += 1) {
 
-	var points = 'M 0,0 L '+x+','+y+' ';
+		angle = Math.PI/50*values[i];
 
-	points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+',1 '+radius+',0 Z';
+		x = Math.cos(angle)*radius;
+		y = -Math.sin(angle)*radius;
 
-	g.append('path')
-		.attr('d', points)
-		.attr('class', 'blueslice');
+		var points = 'M 0,0 L '+x+','+y+' ';
+
+		points += 'A '+radius+','+radius+' 0 '+(angle<Math.PI?0:1)+',1 '+radius+',0 Z';
+
+		g.append('g')
+			.attr('transform', 'rotate('+deg(-rotation)+')')
+			.append('path')
+				.attr('d', points)
+				.attr('class', 'slice-'+i);
+		
+		rotation += angle;
+	}
 
 	return angle;
 }
