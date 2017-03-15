@@ -333,6 +333,60 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 
 }
 
+// formula from http://mathworld.wolfram.com/CircularSegment.html
+function circleSegmentArea(radius, theta) {
+	return radius*radius*(theta-Math.sin(theta))/2;
+}
+
+function drawStraightLinePie(drawInfo, values, rotation, radius) {
+	var circleArea = radius*radius*Math.PI;
+
+	var makeOptFunc = function(fraction) {
+		if (fraction <= .5) {
+			return function(angle) {
+				return circleSegmentArea(radius, angle)/circleArea - fraction;
+			}
+		} else {
+			return function(angle) {
+				return (1 - circleSegmentArea(radius, angle)/circleArea) - fraction;
+			}
+		}
+	}
+
+	drawInfo.baseG.selectAll('g').remove();
+
+	var g = drawBasePie(drawInfo, rotation, radius);
+
+	var percentSum = 0;
+	var segments = [];
+	for (var i = 0; i < values.length; i += 1) {
+		var cumulativePercent = percentSum+values[i];
+
+		var optFunc = makeOptFunc(cumulativePercent/100);
+		
+		var angle = binaryZeroSearch(optFunc, 0, Math.PI, optFunc(0), optFunc(Math.PI), .01);
+
+		if (cumulativePercent > 50) {
+			angle = Math.PI*2-angle;
+		}
+
+		var x = radius*Math.cos(angle/2);
+		var y = radius*Math.sin(angle/2);
+
+		segments.push('M '+x+','+y+' A '+radius+','+radius+' 0,'+(angle<Math.PI?'0':'1')+' 0 '+x+','+(-y)+' Z');
+
+		percentSum += values[i];
+	}
+
+	for (var i = values.length-1; i >= 0; i -= 1) {
+		var d = segments.pop();
+
+		g.append('path')
+			.attr('d', d)
+			.attr('class', 'slice-'+i);
+	}
+}
+
 function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 	switch(chartType) {
 		case 'baseline':
@@ -348,7 +402,7 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'circular-straight':
-
+			var params = drawStraightLinePie(drawInfo, values, rotation, radius);
 		break;
 
 		case 'treemap':
