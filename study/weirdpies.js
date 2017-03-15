@@ -333,42 +333,54 @@ function drawOffCenterPie(drawInfo, percentage, rotation, largeRadius, smallRadi
 
 }
 
-function drawWeirdPie(drawInfo, radius, rotation, percentage, chartType) {
+function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 	switch(chartType) {
 		case 'baseline':
-			var centralAngle = drawStandardPie(drawInfo, percentage, rad(rotation), radius);
+			var centralAngle = drawStandardPie(drawInfo, values, rad(rotation), radius);
 			$('#angle').text(deg(centralAngle).toFixed(0));
 		break;
 
 		case 'circular':
-			var params = drawCircularSegmentPie(drawInfo, percentage, rad(rotation), radius);
+			var params = drawCircularSegmentPie(drawInfo, values, rad(rotation), radius);
 
 			$('#areaFraction').text((params.areaFraction*100).toFixed(0));
 			$('#distance').text(params.distance.toFixed(0));
 		break;
 
+		case 'circular-straight':
+
+		break;
+
+		case 'treemap':
+
+		break;
+
+		case 'stacked-bars':
+
+		break;
+
 		case 'circular-center':
-			var areaFraction = drawCenteredCircularSegmentPie(drawInfo, percentage, rad(rotation), radius);
+			var areaFraction = drawCenteredCircularSegmentPie(drawInfo, values[0], rad(rotation), radius);
 			$('#areaFraction').text((areaFraction*100).toFixed(0));
 		break;
 
 		case 'off-center':
-			var areaFraction = drawOffCenterPie(drawInfo, percentage, rad(rotation), radius, radius/3);
+			var areaFraction = drawOffCenterPie(drawInfo, values[0], rad(rotation), radius, radius/3);
 			$('#areaFraction').text((areaFraction*100).toFixed(0));
 		break;
 
 		case 'centered-circle':
-			var areaFraction = drawSmallCirclePie(drawInfo, percentage, rad(rotation), radius, true);
+			var areaFraction = drawSmallCirclePie(drawInfo, values[0], rad(rotation), radius, true);
 			$('#areaFraction').text((areaFraction*100).toFixed(0));
 		break;
 
 		case 'centered-square':
-			var areaFraction = drawCenteredSquarePie(drawInfo, percentage, rad(rotation), radius);
+			var areaFraction = drawCenteredSquarePie(drawInfo, values[0], rad(rotation), radius);
 			$('#areaFraction').text((areaFraction*100).toFixed(0));
 		break;
 
 		case 'floating-circle':
-			var areaFraction = drawSmallCirclePie(drawInfo, percentage, rad(rotation), radius, false);
+			var areaFraction = drawSmallCirclePie(drawInfo, values[0], rad(rotation), radius, false);
 			$('#areaFraction').text((areaFraction*100).toFixed(0));
 		break;
 	}
@@ -395,7 +407,7 @@ function drawGrid(drawInfo, rotation) {
 			
 			drawInfo.baseG = g;
 
-			drawWeirdPie(drawInfo, size/2, rotation, VALUES[j], VARIATIONS[i]);
+			drawWeirdPie(drawInfo, size/2, rotation, [VALUES[j]], VARIATIONS[i]);
 		}
 	}
 

@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Area Charts Study</title>
+		<title>Part-Whole Charts Study</title>
 		 <link href="css/bootstrap.min.css" rel="stylesheet">
 		<script src="js/d3.min.js" charset="utf-8"></script>
 		<script src="js/numbers.min.js"></script>
@@ -116,7 +116,7 @@
 	<body>
 		<div class="row" id="instructions">
 			<div class="col-md-6 col-md-offset-1">
-				<h1>Area Charts Study</h1>
+				<h1>Part-Whole Charts Study</h1>
 				<p><strong>Please read these instructions carefully before continuing!</strong></p>
 				<p>This study examines how well people can read area in charts that represent a value using area. Some of these charts will look like pie charts, most will be a bit unusual though.</p>
 				<p>Your task is to read the value that is shown in the blue (darker) part of each chart as a percentage. Regardless of the shape of the blue part, estimate the area covered by it as a percentage of the entire circle.</p>
@@ -225,6 +225,16 @@
 					<div class="radio">
 						<label><input type="radio" name="charttype" id="charttype-circular" value="circular"> Circular slice</label>
 					</div>
+					<div class="radio">
+						<label><input type="radio" name="charttype" id="charttype-circular-straight" value="circular-straight"> Straight line separator</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="charttype" id="charttype-treemap" value="treemap"> Treemap</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="charttype" id="charttype-stacked-bars" value="stacked-bars"> Stacked Bars</label>
+					</div>
+					<hr style="width: 50%; margin-left: 0pt; margin-bottom: .5em; margin-top: .5em;" />
 					<div class="radio">
 						<label><input type="radio" name="charttype" id="charttype-circular-center" value="circular-center"> Circular slice through center</label>
 					</div>
