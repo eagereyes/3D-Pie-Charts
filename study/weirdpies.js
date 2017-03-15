@@ -387,6 +387,29 @@ function drawStraightLinePie(drawInfo, values, rotation, radius) {
 	}
 }
 
+function drawStackedBars(drawInfo, values, length) {
+	drawInfo.baseG.selectAll('g').remove();
+
+	var g = drawInfo.baseG.append('g');
+	
+	var height = length/10;
+	var y = (length-height)/2;
+
+	var x = (WIDTH-length)/2;
+	for (var i = 0; i < values.length; i += 1) {
+		var width = values[i]/100*length;
+
+		g.append('rect')
+			.attr('x', x)
+			.attr('y', y)
+			.attr('width', width)
+			.attr('height', height)
+			.attr('class', 'slice-'+i);
+		
+		x += width;
+	}
+}
+
 function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 	switch(chartType) {
 		case 'baseline':
@@ -402,7 +425,7 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'circular-straight':
-			var params = drawStraightLinePie(drawInfo, values, rotation, radius);
+			drawStraightLinePie(drawInfo, values, rotation, radius);
 		break;
 
 		case 'treemap':
@@ -410,7 +433,7 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'stacked-bars':
-
+			drawStackedBars(drawInfo, values, radius*2);
 		break;
 
 		case 'circular-center':
