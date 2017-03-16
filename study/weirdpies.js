@@ -66,43 +66,54 @@ function circularLensAreaSameRadius(radius, distance) {
 	return 2*radius*radius*Math.acos(distance/(2*radius))-distance/2*Math.sqrt(4*radius*radius-distance*distance);
 }
 
-function drawCircularSegmentPie(drawInfo, percentage, rotation, radius) {
+function drawCircularSegmentPie(drawInfo, values, rotation, radius) {
 
 	var circleArea = radius*radius*Math.PI;
 
-	var optFunc = function(distance) {
-		return circularLensAreaSameRadius(radius, distance)/circleArea - percentage/100;
+	var makeOptFunc = function(fraction) {
+		return function(distance) {
+			return circularLensAreaSameRadius(radius, distance)/circleArea - fraction;
+		}
 	}
-
-	var distance = binaryZeroSearch(optFunc, 0, radius*2, optFunc(0), optFunc(radius*2));
-
-	var areaFraction = circularLensAreaSameRadius(radius, distance) / circleArea;
-
-	var x = distance/2;
-
-	var y = Math.sqrt(radius*radius-x*x);
-
-	// theta is half the angle, since it's symmetrical around the x axis
-	var theta = Math.atan2(y, x);
-	arcLengths.push({
-		percent: percentage,
-		variation: 'circular',
-		arcPercentage: theta/Math.PI
-	});
-
-	var path = 'M '+x+','+y+' A '+radius+','+radius+' 0,0 0 '+x+','+(-y)+' ';
-
-	path += 'A '+radius+','+radius+' 0,0 0 '+x+','+y+' Z';
 
 	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawBasePie(drawInfo, rotation, radius);
 
-	g.append('path')
-		.attr('d', path)
-		.attr('class', 'blueslice');
+	var percentSum = 0;
+	var segments = [];
+	for (var i = 0; i < values.length; i += 1) {
+		var cumulativePercent = percentSum+values[i];
 
-	return {areaFraction: areaFraction, distance: distance};
+		var optFunc = makeOptFunc(cumulativePercent/100);
+		
+		var distance = binaryZeroSearch(optFunc, 0, radius*2, optFunc(0), optFunc(radius*2));
+
+		var x = distance/2;
+
+		var y = Math.sqrt(radius*radius-x*x);
+
+		// theta is half the angle, since it's symmetrical around the x axis
+		var theta = Math.atan2(y, x);
+
+		var path = 'M '+x+','+y+' A '+radius+','+radius+' 0,0 0 '+x+','+(-y)+' ';
+
+		path += 'A '+radius+','+radius+' 0,0 0 '+x+','+y+' Z';
+
+		segments.push(path);
+
+		percentSum += values[i];
+	}
+
+	for (var i = values.length-1; i >= 0; i -= 1) {
+		var d = segments.pop();
+
+		g.append('path')
+			.attr('d', d)
+			.attr('class', 'slice-'+i);
+	}
+
+	return {};
 }
 
 // from http://mathworld.wolfram.com/Circle-CircleIntersection.html, with r=d, distance = radius2
@@ -387,6 +398,11 @@ function drawStraightLinePie(drawInfo, values, rotation, radius) {
 	}
 }
 
+function drawTreeMap(drawInfo, values, radius) {
+	
+}
+
+
 function drawStackedBars(drawInfo, values, length) {
 	drawInfo.baseG.selectAll('g').remove();
 
@@ -419,9 +435,6 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 
 		case 'circular':
 			var params = drawCircularSegmentPie(drawInfo, values, rad(rotation), radius);
-
-			$('#areaFraction').text((params.areaFraction*100).toFixed(0));
-			$('#distance').text(params.distance.toFixed(0));
 		break;
 
 		case 'circular-straight':
@@ -429,7 +442,7 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'treemap':
-
+			drawTreeMap(drawInfo, values, radius);
 		break;
 
 		case 'stacked-bars':
