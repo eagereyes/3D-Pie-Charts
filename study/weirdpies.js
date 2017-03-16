@@ -399,7 +399,33 @@ function drawStraightLinePie(drawInfo, values, rotation, radius) {
 }
 
 function drawTreeMap(drawInfo, values, radius) {
-	
+	var tree = {'children': values.map(function(v) { return {'size': v}; })};
+
+	var root = d3.hierarchy(tree);
+	root.sum(function(n) {return n.size; });
+
+	var size = Math.sqrt(radius*radius*Math.PI);
+
+	var treemap = d3.treemap()
+		.tile(d3.treemapSquarify)
+		.size([size, size])
+		.round(true);
+
+	treemap(root);
+
+	drawInfo.baseG.selectAll('g').remove();
+
+	drawInfo.baseG.append('g')
+		.attr('transform', 'translate('+(WIDTH-size)/2+','+(HEIGHT-size)/2+')')
+		.selectAll('rect')
+		.data(root.leaves())
+		.enter().append('rect')
+		.attr('x', function(d) { return d.x0; })
+		.attr('y', function(d) { return d.y0; })
+		.attr('width', function(d) { return d.x1 - d.x0; })
+		.attr('height', function(d) { return d.y1 - d.y0; })
+		.attr('class', function(d, i) { return 'slice-'+i; });
+
 }
 
 
