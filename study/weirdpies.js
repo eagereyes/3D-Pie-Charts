@@ -438,7 +438,7 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'circular-straight':
-			drawStraightLinePie(drawInfo, values, rotation, radius);
+			drawStraightLinePie(drawInfo, values, rad(rotation), radius);
 		break;
 
 		case 'treemap':
