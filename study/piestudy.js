@@ -1,5 +1,5 @@
 
-var VARIATIONS = ['baseline', 'circular', 'straight', 'treemap', 'stacked'];
+var VARIATIONS = ['baseline', 'circular', 'circular-straight', 'treemap', 'stacked-bars'];
 
 var VALUES_1 = [ 2,  3,  4,  6,  7,  8,  9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 24];
 var VALUES_2 = [26, 27, 28, 29, 31, 32, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49];
@@ -11,7 +11,7 @@ var LARGE_VALUES_2 = [49, 51, 52, 53, 54, 56, 57, 58];
 var LARGE_VALUES_3 = [59, 61, 62, 63, 64, 67, 68, 69];
 var LARGE_VALUES_4 = [71, 72, 73, 74, 76, 77, 78, 79];
 
-var NUM_CASES = 3;
+var NUM_CASES = 4;
 
 var RESULTSURL = 'http://study.eagereyes.org/area-charts/submit_csv.php';
 
@@ -65,6 +65,16 @@ function jitter(values) {
 	values[2] += error;
 	values[1] -= Math.floor(error/2);
 	values[3] -= Math.ceil(error/2);
+
+	// in case the middle value ends up larger than its neighbor, simply swap them
+	if (values[2] > values[1]) {
+		console.log(values);
+		var tmp = values[2];
+		values[2] = values[1];
+		values[1] = tmp;
+		console.log('SWAP!');
+		console.log(values);
+	}
 
 	return values;
 }
@@ -139,9 +149,6 @@ function makeTrials(resultID, demographics, source) {
 
 					trials.push(trial);
 				}
-
-
-
 			}
 		}
 	}
@@ -205,7 +212,7 @@ function nextStep() {
 function updatePie() {
 	var trial = trials[trialIndex];
 	var radius = HEIGHT/2-5;
-	drawWeirdPie(drawInfo, radius, trial.rotation, trial.percentage, trial.variation);
+	drawWeirdPie(drawInfo, radius, trial.rotation, trial.values, trial.variation);
 	trials[trialIndex].startTime = (new Date()).getTime();
 	$('#percent').focus();
 }
