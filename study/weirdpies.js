@@ -398,7 +398,7 @@ function drawStraightLinePie(drawInfo, values, rotation, radius) {
 	}
 }
 
-function drawTreeMap(drawInfo, values, radius) {
+function drawTreeMap(drawInfo, values, rotation, radius) {
 	var tree = {'children': values.map(function(v) { return {'size': v}; })};
 
 	var root = d3.hierarchy(tree);
@@ -415,37 +415,45 @@ function drawTreeMap(drawInfo, values, radius) {
 
 	drawInfo.baseG.selectAll('g').remove();
 
+	var vertical = Math.floor(rotation/(Math.PI/2)) % 2 == 1;
+
 	drawInfo.baseG.append('g')
 		.attr('transform', 'translate('+(WIDTH-size)/2+','+(HEIGHT-size)/2+')')
 		.selectAll('rect')
 		.data(root.leaves())
 		.enter().append('rect')
-		.attr('x', function(d) { return d.x0; })
-		.attr('y', function(d) { return d.y0; })
-		.attr('width', function(d) { return d.x1 - d.x0; })
-		.attr('height', function(d) { return d.y1 - d.y0; })
+		.attr('x', function(d) { return vertical?d.y0:d.x0; })
+		.attr('y', function(d) { return vertical?d.x0:d.y0; })
+		.attr('width', function(d) { return vertical?(d.y1 - d.y0):(d.x1 - d.x0); })
+		.attr('height', function(d) { return vertical?(d.x1 - d.x0):(d.y1 - d.y0); })
 		.attr('class', function(d, i) { return 'slice-'+i; });
-
 }
 
 
-function drawStackedBars(drawInfo, values, length) {
+function drawStackedBars(drawInfo, values, rotation, length) {
 	drawInfo.baseG.selectAll('g').remove();
 
 	var g = drawInfo.baseG.append('g');
 	
 	var height = length/10;
 	var y = (length-height)/2;
-
 	var x = (WIDTH-length)/2;
+
+	var vertical = Math.floor(rotation/(Math.PI/2)) % 2 == 1;
+
+	if (vertical) {
+		x = (HEIGHT-length)/2;
+		y = (WIDTH-height)/2;
+	}
+
 	for (var i = 0; i < values.length; i += 1) {
 		var width = values[i]/100*length;
 
 		g.append('rect')
-			.attr('x', x)
-			.attr('y', y)
-			.attr('width', width)
-			.attr('height', height)
+			.attr('x', vertical?y:x)
+			.attr('y', vertical?x:y)
+			.attr('width', vertical?height:width)
+			.attr('height', vertical?width:height)
 			.attr('class', 'slice-'+i);
 		
 		x += width;
@@ -472,11 +480,11 @@ function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
 		break;
 
 		case 'treemap':
-			drawTreeMap(drawInfo, values, radius);
+			drawTreeMap(drawInfo, values, rad(rotation), radius);
 		break;
 
 		case 'stacked-bars':
-			drawStackedBars(drawInfo, values, radius*2);
+			drawStackedBars(drawInfo, values, rad(rotation), radius*2);
 		break;
 
 		case 'circular-center':

@@ -185,6 +185,7 @@ function nextStep() {
 	trials[trialIndex].duration = trials[trialIndex].endTime-trials[trialIndex].startTime;
 	trials[trialIndex].step = trialIndex;
 	trials[trialIndex].answer = response;
+	trials[trialIndex].values = trials[trialIndex].values.join(',');
 		
 	$('#percent').val('');
 	$('#nextBtn').prop('disabled', true);
