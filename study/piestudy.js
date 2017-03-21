@@ -185,7 +185,7 @@ function nextStep() {
 	trials[trialIndex].duration = trials[trialIndex].endTime-trials[trialIndex].startTime;
 	trials[trialIndex].step = trialIndex;
 	trials[trialIndex].answer = response;
-	trials[trialIndex].values = trials[trialIndex].values.join(',');
+	trials[trialIndex].values = '"'+trials[trialIndex].values.join(',')+'"'; // ahem, very manual encoding to not break the CSV…
 		
 	$('#percent').val('');
 	$('#nextBtn').prop('disabled', true);
@@ -212,6 +212,8 @@ function nextStep() {
 
 function updatePie() {
 	var trial = trials[trialIndex];
+	d3.select('#question-color').classed('slice-0 slice-2', false);
+	d3.select('#question-color').classed('slice-'+(trial.question==='largest'?'0':'2'), true);
 	var radius = HEIGHT/2-5;
 	drawWeirdPie(drawInfo, radius, trial.rotation, trial.values, trial.variation);
 	trials[trialIndex].startTime = (new Date()).getTime();
