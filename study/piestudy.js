@@ -13,7 +13,7 @@ var LARGE_VALUES_4 = [71, 72, 73, 74, 76, 77, 78, 79];
 
 var NUM_CASES = 4;
 
-var RESULTSURL = 'http://study.eagereyes.org/area-charts/submit_csv.php';
+var RESULTSURL = 'http://study.eagereyes.org/part-whole/submit_csv.php';
 
 var trialIndex = 0;
 
@@ -291,7 +291,7 @@ function submitResults() {
 	
 //	console.log(csv);
 
-	d3.xhr(RESULTSURL)
+	d3.request(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
 		.post('resultID='+encodeURIComponent(trials[0].resultID)+'&'+
 			'data='+encodeURIComponent(csv))
