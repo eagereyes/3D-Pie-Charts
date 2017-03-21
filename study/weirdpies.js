@@ -38,7 +38,7 @@ function drawStandardPie(drawInfo, values, rotation, radius) {
 
 	var g = drawBasePie(drawInfo, 0, radius);
 
-	for (var i = 0; i < values.length; i += 1) {
+	for (var i = values.length-1; i >= 0; i -= 1) {
 
 		angle = Math.PI/50*values[i];
 
