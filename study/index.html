@@ -119,7 +119,14 @@
 				background-color: darkgray;
 			}
 			
-			#errors {
+			#question-color {
+				display: block;
+				margin-top: 3px;
+				margin-bottom: 3px;
+				width: 50%;
+			}
+
+			#question {
 				margin-top: 520px;
 			}
 			
@@ -190,11 +197,6 @@
 				</div>
 
 				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="startStudy();">Start Study</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-8 col-md-offset-1" id="question">
-				<h4>What part of the whole (in percent) does the <span id="question-color">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> part represent?</h4>
 			</div>
 		</div>
 		<div class="row">
@@ -302,6 +304,11 @@
 					Distance: <span id="distance"></span><br />
 				</div>
 				
+				<div class="row">
+					<div class="col-md-8 col-md-offset-1" id="question">
+						<h4>What part of the whole (in percent) does the <span id="question-color">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> part represent?</h4>
+					</div>
+				</div>
 				<div id="errors">
 					<p class="bg-danger error" id="outofrange">Please respond in percent (1-99)! Try again.</p>
 					<p class="bg-danger error" id="wrongpart">Please respond for the blue part of the pie! Try again.</p>
