@@ -444,6 +444,7 @@ function drawStackedBars(drawInfo, values, rotation, length) {
 	if (vertical) {
 		x = (HEIGHT-length)/2;
 		y = (WIDTH-height)/2;
+		g.attr('transform', 'translate(0, '+HEIGHT+') scale(1, -1)');
 	}
 
 	for (var i = 0; i < values.length; i += 1) {
@@ -455,7 +456,7 @@ function drawStackedBars(drawInfo, values, rotation, length) {
 			.attr('width', vertical?height:width)
 			.attr('height', vertical?width:height)
 			.attr('class', 'slice-'+i);
-		
+
 		x += width;
 	}
 }
