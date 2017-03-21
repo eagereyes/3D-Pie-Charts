@@ -1,12 +1,17 @@
 
-var VARIATIONS = ['baseline', 'circular', 'circular-center', 'off-center', 'centered-circle', 'centered-square', 'floating-circle']
+var VARIATIONS = ['baseline', 'circular', 'straight', 'treemap', 'stacked'];
 
 var VALUES_1 = [ 2,  3,  4,  6,  7,  8,  9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 24];
 var VALUES_2 = [26, 27, 28, 29, 31, 32, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49];
 var VALUES_3 = [51, 52, 53, 54, 56, 57, 58, 59, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74];
 var VALUES_4 = [76, 77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 96, 97];
 
-var NUM_ROTATIONS = 3;
+var LARGE_VALUES_1 = [39, 41, 42, 43, 44, 46, 47, 48];
+var LARGE_VALUES_2 = [49, 51, 52, 53, 54, 56, 57, 58];
+var LARGE_VALUES_3 = [59, 61, 62, 63, 64, 67, 68, 69];
+var LARGE_VALUES_4 = [71, 72, 73, 74, 76, 77, 78, 79];
+
+var NUM_CASES = 3;
 
 var RESULTSURL = 'http://study.eagereyes.org/area-charts/submit_csv.php';
 
@@ -14,35 +19,129 @@ var trialIndex = 0;
 
 var inBreak = false;
 
+function makeLongTail(largest) {
+	var vals = [largest];
+	var rest = 100-largest;
+	for (var i = 8; i >= 1; i /= 2) {
+		vals.push(Math.round(rest*i/15));
+	}
+
+	var sum = vals.reduce(function(s, a) { return s+a; });
+	vals[0] += 100-sum;
+
+	return vals;
+}
+
+function makeStraightTail(largest) {
+	var vals = [largest];
+	var rest = 100-largest;
+	for (var i = 4; i >= 1; i -= 1) {
+		vals.push(Math.round(rest*i/10));
+	}
+
+	var sum = vals.reduce(function(s, a) { return s+a; });
+	vals[0] += 100-sum;
+
+	return vals;	
+}
+
+function makeFatTail(largest) {
+	var vals = [largest];
+	var rest = 100-largest;
+
+	for (var i = 5; i > -5; i -= 3) {
+		vals.push(Math.round(rest/4+i));
+	}
+
+	var sum = vals.reduce(function(s, a) { return s+a; });
+	vals[0] += 100-sum;
+
+	return vals;
+}
+
+// This function mostly messes with the middle value to make guessing that a bit more interesting
+function jitter(values) {
+	var error = Math.round((Math.random()-0.5)*(values[1]-values[3])*.8);
+	values[2] += error;
+	values[1] -= Math.floor(error/2);
+	values[3] -= Math.ceil(error/2);
+
+	return values;
+}
+
 /**
  * Make the combinations for the study trials. All angles here are in degrees for nicer logging.
  * Need to be converted to radians for drawing.
  */
 function makeTrials(resultID, demographics, source) {
 	
-	var nums = [VALUES_1, VALUES_2, VALUES_3, VALUES_4];
-	var numIndex = [0, 0, 0];
-	
+	var largeNums = [LARGE_VALUES_1, LARGE_VALUES_2, LARGE_VALUES_3, LARGE_VALUES_4];
+	var tailTypes = ['fat', 'long'];
+	var questionTypes = ['middle', 'largest'];
+
 	var trials = [];
 
-	for (var i = 0; i < VARIATIONS.length; i++) {
-		for (var j = 0; j < nums.length; j++) {
-			for (var k = 0; k < NUM_ROTATIONS; k++) {
+	for (var variation = 0; variation < VARIATIONS.length; variation++) {
+		for (var k = 0; k < NUM_CASES; k++) {
+			for (var question = 0; question < questionTypes.length; question++) {
 
-				var value = nums[j][Math.floor(Math.random()*nums[j].length)];
+				if (question === 0) { // ask for middle value, can be fat or long tail
+					for (var tail = 0; tail < tailTypes.length; tail++) {
 
-				var trial = {
-					resultID: resultID,
-					source: source,
-					variation: VARIATIONS[i],
-					percentage: value,
-					rotation: Math.floor(Math.random()*360),
-					age: demographics.age,
-					sex: demographics.sex,
-					degree: demographics.degree
-				};
+						// var nums = (tail === 0) ? smallNums : largeNums;
 
-				trials.push(trial);
+						var nums = largeNums;
+
+						var value = nums[k][Math.floor(Math.random()*nums[k].length)];
+
+						var values = (tail === 0) ? makeFatTail(value) : makeLongTail(value);
+
+						values = jitter(values);
+
+						value = values[2];
+
+						var trial = {
+							resultID: resultID,
+							source: source,
+							variation: VARIATIONS[variation],
+							question: questionTypes[question],
+							tail: tailTypes[tail],
+							percentage: value,
+							values: values,
+							rotation: Math.floor(Math.random()*360),
+							age: demographics.age,
+							sex: demographics.sex,
+							degree: demographics.degree
+						};
+
+						trials.push(trial);
+
+					}
+				} else { // ask for largest, pick largest and make it long-tail
+
+					var value = largeNums[k][Math.floor(Math.random()*largeNums[k].length)];
+
+					var values = makeLongTail(value);
+
+					var trial = {
+						resultID: resultID,
+						source: source,
+						variation: VARIATIONS[variation],
+						question: questionTypes[question],
+						tail: tailTypes[1],
+						percentage: value,
+						values: values,
+						rotation: Math.floor(Math.random()*360),
+						age: demographics.age,
+						sex: demographics.sex,
+						degree: demographics.degree
+					};
+
+					trials.push(trial);
+				}
+
+
+
 			}
 		}
 	}

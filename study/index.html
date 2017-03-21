@@ -28,6 +28,7 @@
 			}
 			
 			/* colors from ColorBrewer's 5-class Set2 */
+			/*
 			.slice-0 {
 				fill: #66c2a5;
 			}
@@ -46,6 +47,28 @@
 
 			.slice-4 {
 				fill: #a6d854;
+			}
+			*/
+
+			/* Colors from Tableau's Miller Stone palette */
+			.slice-0 {
+				fill: #3F6982;
+			}
+
+			.slice-1 {
+				fill: #FF7A3C;
+			}
+
+			.slice-2 {
+				fill: #8DCFAA;
+			}
+
+			.slice-3 {
+				fill: #CE6351;
+			}
+
+			.slice-4 {
+				fill: #82766D;
 			}
 
 			.bluepattern {
@@ -255,15 +278,18 @@
 					</div>
 
 
-					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="30" id="percentage" oninput="redraw();"></label><br/>
+					<label>Value: <span id="percentageVal"></span>% <input type="range" min="3" max="97" value="39" id="percentage" oninput="redraw();"></label><br/>
 					<label>Rotation: <span id="rotationVal"></span>&deg; <input type="range" min="0" max="359" value="220" id="rotation" oninput="redraw();"></label><br />
-					<label>Slices: <span id="slicesVal"></span> <input type="range" min="2" max="5" value="2" id="slices" oninput="redraw();"></label><br />
+					<label>Slices: <span id="slicesVal"></span> <input type="range" min="2" max="5" value="5" id="slices" oninput="redraw();"></label><br />
 					
 					<div class="radio">
-						<label><input type="radio" name="distribution" id="distribution-power" value="power" checked> Power Law</label>
+						<label><input type="radio" name="distribution" id="distribution-long" value="long" checked> Long Tail</label>
 					</div>
 					<div class="radio">
-						<label><input type="radio" name="distribution" id="distribution-similar" value="similar"> Similar Values</label>
+						<label><input type="radio" name="distribution" id="distribution-fat" value="straight"> Straight Tail</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="distribution" id="distribution-fat" value="fat"> Fat Tail</label>
 					</div>
 
 					Angle: <span id="angle"></span>&deg;<br/>
@@ -303,6 +329,8 @@
 			
 			var chartType = 'baseline';
 
+			var tailType = 'long';
+
 			function rad(degrees) {
 				return degrees*Math.PI/180;
 			}
@@ -316,18 +344,9 @@
 				redraw();
 			}
 
-			function makeValues(numSlices, startVal) {
-				var a = [];
-				var val = startVal;
-				var rest = 100;
-				for (var i = 1; i < numSlices; i++) {
-					a.unshift(val);
-					rest -= val;
-					val /= 2;
-				}
-				a.unshift(rest);
-
-				return a;
+			function setTailType(newTail) {
+				tailType = newTail;
+				redraw();
 			}
 
 			function redraw() {
@@ -346,7 +365,23 @@
 				if (chartType == 'grid') {
 					drawGrid(drawInfo, rotation);
 				} else {
-					drawWeirdPie(drawInfo, radius, rotation, makeValues(numSlices, percentage), chartType);
+
+					var values;
+					switch(tailType) {
+						case 'long':
+							values = makeLongTail(percentage);
+							break;
+						
+						case 'straight':
+							values = makeStraightTail(percentage);
+							break;
+
+						case 'fat':
+							values = makeFatTail(percentage);
+							break;
+					}
+
+					drawWeirdPie(drawInfo, radius, rotation, jitter(values), chartType);
 				}
 			}
 
@@ -369,6 +404,10 @@
 				d3.selectAll('input')
 					.filter(function(d) { return this.name == 'charttype'; })
 					.on('change', function() { setChartType(this.value); });
+
+				d3.selectAll('input')
+					.filter(function(d) { return this.name == 'distribution'; })
+					.on('change', function() { setTailType(this.value); });
 
 				redraw();
 			} else {

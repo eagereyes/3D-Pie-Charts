@@ -453,6 +453,10 @@ function drawStackedBars(drawInfo, values, length) {
 }
 
 function drawWeirdPie(drawInfo, radius, rotation, values, chartType) {
+
+	console.log(values);
+	console.log(values.reduce(function(s, a) { return s+a; }));
+
 	switch(chartType) {
 		case 'baseline':
 			var centralAngle = drawStandardPie(drawInfo, values, rad(rotation), radius);
