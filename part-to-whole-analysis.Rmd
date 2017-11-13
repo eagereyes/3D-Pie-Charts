@@ -1,0 +1,83 @@
+---
+title: "Part-to-Whole Study Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data and calculate basic error
+
+```{r data}
+library('ggplot2')
+library('dplyr')
+
+p2w <- read.csv('part-to-whole-results.csv') %>%
+	filter(resultID != '1490192873329x716792') # filter out one participant where logging didn't seem to work right
+
+p2w <- mutate(p2w,
+			error = answer-percentage,
+			absError = abs(error),
+			relError = absError/percentage,
+			variation = factor(variation, labels=c("Pie Chart", "Circular", "Circular Straight", "Stacked Bars", "Treemap"))
+		)
+```
+
+## Aggregate
+
+```{r join}
+baseline <- p2w %>%
+	filter(variation == 'Pie Chart') %>%
+	group_by(resultID, question) %>%
+	summarize(absErrorBaseline = mean(absError),
+			  errorBaseline = mean(error),
+			  relErrorBaseline = mean(relError))
+
+p2wJoined <- p2w %>%
+	left_join(baseline, by = c('resultID', 'question')) %>%
+	mutate(normalizedAbsError = absError/absErrorBaseline,
+		   normalizedError = error/errorBaseline,
+		   normalizedRelError = relError/relErrorBaseline)
+
+p2wAggregated <- p2wJoined %>%
+	group_by(resultID, variation, question, tail) %>%
+	summarize(meanError = mean(error), meanAbsError = mean(absError), meanRelError = mean(relError),
+			  meanNormalizedError = mean(normalizedError), meanNormalizedAbsError = mean(normalizedAbsError), meanNormalizedRelError = mean(normalizedRelError))
+
+```
+
+## Define a few useful functions for later
+
+```{r functions}
+
+lowerCI <- function(v) {
+	mean(v) - sd(v)*1.96/sqrt(length(v))
+}
+
+upperCI <- function(v) {
+	mean(v) + sd(v)*1.96/sqrt(length(v))
+}
+
+largestQs <- function(data) {
+	filter(data, question == 'largest')
+}
+
+middleQs <- function(data) {
+	filter(data, question == 'middle')
+}
+
+```
+
+## Plots
+
+## Absolute Error
+
+```{r plot-absolute}
+# Absolute error CIs
+ggplot(largestQs(p2wAggregated), aes(x=variation, y=meanAbsError)) +
+	stat_summary(fun.ymin=lowerCI, fun.ymax=upperCI, geom="errorbar", aes(width=.1)) +
+	stat_summary(fun.y=mean, geom="point", shape=18, size=3, show.legend = FALSE) +
+#	facet_grid(. ~ question) +
+	labs(x = "Variation", y = "Absolute Error") + ggtitle('Error for largest slice')
+```
