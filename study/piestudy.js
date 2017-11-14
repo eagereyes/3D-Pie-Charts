@@ -166,9 +166,12 @@ function showDemographics() {
 
 function startStudy() {
 
+	$('#instructions').hide();
 	$('#demographics').hide();
 	$('#cond2question').hide();
 	
+	trials = makeTrials(resultID, window.location.hash.substr(1), demographics);
+
 	showStudyStuff();
 
 	var progressbar = d3.select('#progressbar');

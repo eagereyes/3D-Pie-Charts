@@ -103,7 +103,8 @@
 				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
 				<p>&nbsp;</p>
-				<button class="btn btn-primary pull-right" type="button" onclick="showDemographics();">Let's Go!</button>
+				<!-- <button class="btn btn-primary pull-right" type="button" onclick="showDemographics();">Let's Go!</button> -->
+				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Let's Go!</button>
 			</div>
 		</div>
 		<div class="row" id="demographics">
@@ -280,7 +281,6 @@
 
 			function validateDemographics() {
 				if (demographics.age && demographics.sex && demographics.degree) {
-					trials = makeTrials(resultID, window.location.hash.substr(1), demographics);
 					$('#doneDemographics').prop('disabled', false);
 				}
 			}
