@@ -1,12 +1,14 @@
 /* global numbers */
 
-var WIDTH = 800;
-var HEIGHT = 600;
+// SVG width = XPAD + RADIUS*2 + XSEP + RADIUS*2 (+ XPAD)
+// SVG height = YPAD + RADIUS*2 (+YPAD)
+var RADIUS = 200;
+
+var XPAD = 5;
+var YPAD = 5;
+var XSEP = 100;
 
 function makeSVG() {
-	// var svg = d3.select('#pie').append('svg')
-	// 	.attr('width', WIDTH)
-	// 	.attr('height', HEIGHT);
 
 	var svg = d3.select('#pie').select('svg');
 
@@ -14,11 +16,11 @@ function makeSVG() {
 }
 
 function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue) {
-	var leftX = (rotation > Math.PI)?xA:(WIDTH/2-xRadius);
-	var leftY = (rotation > Math.PI)?yA:(HEIGHT/2);
+	var leftX = (rotation > Math.PI)?xA:(XPAD);
+	var leftY = (rotation > Math.PI)?yA:(YPAD+RADIUS);
 	
-	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(WIDTH/2+xRadius);
-	var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(HEIGHT/2);
+	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(XPAD+2*RADIUS);
+	var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(YPAD+RADIUS);
 	
 	var path = drawInfo.svg.append('path')
 		.attr('d', 'M '+leftX+','+leftY+' '+
@@ -41,11 +43,11 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 	var xRadius = radius;
 	var yRadius = radius*Math.sin(viewAngle);
 
-	var xA = WIDTH/2+xRadius*Math.cos(rotation);
-	var yA = HEIGHT/2-yRadius*Math.sin(rotation);
+	var xA = XPAD+radius+xRadius*Math.cos(rotation);
+	var yA = YPAD+radius-yRadius*Math.sin(rotation);
 
-	var xB = WIDTH/2+radius*Math.cos(rotation+centralAngle);
-	var yB = HEIGHT/2-yRadius*Math.sin(rotation+centralAngle);
+	var xB = XPAD+radius+radius*Math.cos(rotation+centralAngle);
+	var yB = YPAD+radius-yRadius*Math.sin(rotation+centralAngle);
 
 	drawInfo.svg.selectAll('ellipse').remove();
 	drawInfo.svg.selectAll('path').remove();
@@ -55,10 +57,10 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		body *= 1-Math.sin(viewAngle);
 
 		var path = drawInfo.svg.append('path')
-			.attr('d', 'M '+(WIDTH/2-xRadius)+','+(HEIGHT/2)+' '+
-			'L '+(WIDTH/2-xRadius)+','+(HEIGHT/2+body)+
-			'A '+xRadius+','+yRadius+' 0 0 0 '+(WIDTH/2+xRadius)+','+(HEIGHT/2+body)+' '+
-			'L '+(WIDTH/2+xRadius)+','+(HEIGHT/2)+' Z');
+			.attr('d', 'M '+(XPAD)+','+(YPAD+radius)+' '+
+			'L '+(XPAD)+','+(YPAD+radius+body)+
+			'A '+xRadius+','+yRadius+' 0 0 0 '+(XPAD+2*radius)+','+(YPAD+radius+body)+' '+
+			'L '+(XPAD+2*radius)+','+(YPAD+radius)+' Z');
 			
 		if (depthCue == 0) {
 			path.attr('class', 'body');
@@ -76,23 +78,23 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 	}
 	
 	drawInfo.svg.append('ellipse')
-		.attr('cx', WIDTH/2)
-		.attr('cy', HEIGHT/2)
+		.attr('cx', XPAD+radius)
+		.attr('cy', YPAD+radius)
 		.attr('rx', xRadius)
 		.attr('ry', yRadius)
 		.attr('class', 'grayslice');
 
 	if (depthCue == 1) {
 		drawInfo.svg.append('ellipse')
-			.attr('cx', WIDTH/2)
-			.attr('cy', HEIGHT/2)
+			.attr('cx', XPAD+radius)
+			.attr('cy', YPAD+radius)
 			.attr('rx', xRadius)
 			.attr('ry', yRadius)
 			.attr('class', 'graypattern');
 	}
 
 	drawInfo.svg.append('path')
-		.attr('d', 'M '+(WIDTH/2)+','+(HEIGHT/2)+' '+
+		.attr('d', 'M '+(XPAD+radius)+','+(YPAD+radius)+' '+
 		'L '+xB+','+yB+' '+
 		'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 		xA+','+yA+' Z')
@@ -100,7 +102,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 
 	if (depthCue == 1) {
 		drawInfo.svg.append('path')
-			.attr('d', 'M '+(WIDTH/2)+','+(HEIGHT/2)+' '+
+			.attr('d', 'M '+(XPAD+radius)+','+(YPAD+radius)+' '+
 			'L '+xB+','+yB+' '+
 			'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 			xA+','+yA+' Z')
@@ -109,7 +111,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		drawInfo.svg.selectAll('pattern')
 			.attr('patternTransform', 'scale(1 '+Math.sin(viewAngle)+') rotate(45)');
 	} else if (depthCue == 2) {
-		var surfaceEllipse = d3.svg.arc()
+		var surfaceEllipse = d3.arc()
 			.startAngle(0)
 			.endAngle(2*Math.PI)
 			.innerRadius(xRadius*.2)
@@ -118,7 +120,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		drawInfo.svg.append('path')
 			.attr('d', surfaceEllipse())
 			.attr('class', 'surfaceEllipse')
-			.attr('transform', 'translate('+WIDTH/2+' '+HEIGHT/2+') scale(1 '+Math.sin(viewAngle)+')');
+			.attr('transform', 'translate('+(XPAD+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
 
 		surfaceEllipse
 			.innerRadius(xRadius*.6)
@@ -127,7 +129,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		drawInfo.svg.append('path')
 			.attr('d', surfaceEllipse())
 			.attr('class', 'surfaceEllipse')
-			.attr('transform', 'translate('+WIDTH/2+' '+HEIGHT/2+') scale(1 '+Math.sin(viewAngle)+')');
+			.attr('transform', 'translate('+(XPAD+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
 	}
 }
 
