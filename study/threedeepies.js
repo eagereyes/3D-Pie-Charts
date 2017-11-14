@@ -2,11 +2,11 @@
 
 // SVG width = XPAD + RADIUS*2 + XSEP + RADIUS*2 (+ XPAD)
 // SVG height = YPAD + RADIUS*2 (+YPAD)
-var RADIUS = 200;
+var RADIUS = 170;
 
-var XPAD = 0;
-var YPAD = 5;
-var XSEP = 20;
+var XPAD = 10;
+var YPAD = 20;
+var XSEP = 120;
 
 function makeSVG() {
 
@@ -15,11 +15,11 @@ function makeSVG() {
 	return svg;		
 }
 
-function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue) {
-	var leftX = (rotation > Math.PI)?xA:(XPAD);
+function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue, xPad) {
+	var leftX = (rotation > Math.PI)?xA:xPad;
 	var leftY = (rotation > Math.PI)?yA:(YPAD+RADIUS);
 	
-	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(XPAD+2*RADIUS);
+	var rightX = (rotation+centralAngle < 2*Math.PI)?xB:(xPad+2*RADIUS);
 	var rightY = (rotation+centralAngle < 2*Math.PI)?yB:(YPAD+RADIUS);
 	
 	var path = drawInfo.svg.append('path')
@@ -38,15 +38,15 @@ function drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB
 /**
  * All angles in radians
  */
-function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, depthCue) {
+function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, depthCue, xPad) {
 
 	var xRadius = radius;
 	var yRadius = radius*Math.sin(viewAngle);
 
-	var xA = XPAD+radius+xRadius*Math.cos(rotation);
+	var xA = xPad+radius+xRadius*Math.cos(rotation);
 	var yA = YPAD+radius-yRadius*Math.sin(rotation);
 
-	var xB = XPAD+radius+radius*Math.cos(rotation+centralAngle);
+	var xB = xPad+radius+radius*Math.cos(rotation+centralAngle);
 	var yB = YPAD+radius-yRadius*Math.sin(rotation+centralAngle);
 
 	drawInfo.svg.selectAll('ellipse').remove();
@@ -57,10 +57,10 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		body *= 1-Math.sin(viewAngle);
 
 		var path = drawInfo.svg.append('path')
-			.attr('d', 'M '+(XPAD)+','+(YPAD+radius)+' '+
-			'L '+(XPAD)+','+(YPAD+radius+body)+
-			'A '+xRadius+','+yRadius+' 0 0 0 '+(XPAD+2*radius)+','+(YPAD+radius+body)+' '+
-			'L '+(XPAD+2*radius)+','+(YPAD+radius)+' Z');
+			.attr('d', 'M '+(xPad)+','+(YPAD+radius)+' '+
+			'L '+(xPad)+','+(YPAD+radius+body)+
+			'A '+xRadius+','+yRadius+' 0 0 0 '+(xPad+2*radius)+','+(YPAD+radius+body)+' '+
+			'L '+(xPad+2*radius)+','+(YPAD+radius)+' Z');
 			
 		if (depthCue == 0) {
 			path.attr('class', 'body');
@@ -69,16 +69,16 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		}
 		
 		if (rotation+centralAngle > Math.PI) {
-			drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue);
+			drawBody(rotation, centralAngle, body, xRadius, yRadius, xA, yA, xB, yB, depthCue, xPad);
 			
 			if (rotation+centralAngle > 3*Math.PI) {
-				drawBody(Math.PI, rotation+centralAngle-3*Math.PI, body, xRadius, yRadius, xA, yA, xB, yB, depthCue);
+				drawBody(Math.PI, rotation+centralAngle-3*Math.PI, body, xRadius, yRadius, xA, yA, xB, yB, depthCue, xPad);
 			}
 		}
 	}
 	
 	drawInfo.svg.append('ellipse')
-		.attr('cx', XPAD+radius)
+		.attr('cx', xPad+radius)
 		.attr('cy', YPAD+radius)
 		.attr('rx', xRadius)
 		.attr('ry', yRadius)
@@ -86,7 +86,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 
 	if (depthCue == 1) {
 		drawInfo.svg.append('ellipse')
-			.attr('cx', XPAD+radius)
+			.attr('cx', xPad+radius)
 			.attr('cy', YPAD+radius)
 			.attr('rx', xRadius)
 			.attr('ry', yRadius)
@@ -94,7 +94,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 	}
 
 	drawInfo.svg.append('path')
-		.attr('d', 'M '+(XPAD+radius)+','+(YPAD+radius)+' '+
+		.attr('d', 'M '+(xPad+radius)+','+(YPAD+radius)+' '+
 		'L '+xB+','+yB+' '+
 		'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 		xA+','+yA+' Z')
@@ -102,7 +102,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 
 	if (depthCue == 1) {
 		drawInfo.svg.append('path')
-			.attr('d', 'M '+(XPAD+radius)+','+(YPAD+radius)+' '+
+			.attr('d', 'M '+(xPad+radius)+','+(YPAD+radius)+' '+
 			'L '+xB+','+yB+' '+
 			'A '+xRadius+','+yRadius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 			xA+','+yA+' Z')
@@ -120,7 +120,7 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		drawInfo.svg.append('path')
 			.attr('d', surfaceEllipse())
 			.attr('class', 'surfaceEllipse')
-			.attr('transform', 'translate('+(XPAD+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
+			.attr('transform', 'translate('+(xPad+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
 
 		surfaceEllipse
 			.innerRadius(xRadius*.6)
@@ -129,8 +129,33 @@ function draw3DPie(drawInfo, centralAngle, viewAngle, rotation, radius, body, de
 		drawInfo.svg.append('path')
 			.attr('d', surfaceEllipse())
 			.attr('class', 'surfaceEllipse')
-			.attr('transform', 'translate('+(XPAD+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
+			.attr('transform', 'translate('+(xPad+radius)+' '+(YPAD+radius)+') scale(1 '+Math.sin(viewAngle)+')');
 	}
+}
+
+function drawInteractionPie(drawInfo, centralAngle, radius, xPad) {
+
+	drawInfo.svg.selectAll('.interactive').remove();
+
+	drawInfo.svg.append('ellipse')
+		.attr('cx', xPad+radius)
+		.attr('cy', YPAD+radius)
+		.attr('rx', radius)
+		.attr('ry', radius)
+		.attr('class', 'grayslice interactive');
+
+	var xA = xPad+radius+radius*Math.cos(Math.PI/2-centralAngle);
+	var yA = YPAD+radius-radius*Math.sin(Math.PI/2-centralAngle);
+
+	var xB = xPad+radius;
+	var yB = YPAD;
+	
+	drawInfo.svg.append('path')
+		.attr('d', 'M '+(xPad+radius)+','+(YPAD+radius)+' '+
+		'L '+xB+','+yB+' '+
+		'A '+radius+','+radius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
+		xA+','+yA+' Z')
+		.attr('class', 'blueslice');
 }
 
 function ellipseArea(a, b, angle) {

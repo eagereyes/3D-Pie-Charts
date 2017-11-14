@@ -269,8 +269,10 @@
 				var bodyHeight = +$('#bodyHeight')[0].value;
 				$('#bodyVal').text(bodyHeight);
 				
-				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), RADIUS, bodyHeight, +$('input[name="depth"]:checked').val());
-				
+				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), RADIUS, bodyHeight, +$('input[name="depth"]:checked').val(), XPAD);
+
+				drawInteractionPie(drawInfo, rad(centralAngle), RADIUS, XPAD+2*RADIUS+XSEP);
+
 				var predictions = predict(rad(centralAngle), rad(viewAngle), rad(rotation));
 				
 				$('#angle').text(deg(predictions.angle).toFixed(0));
