@@ -4,9 +4,9 @@
 // SVG height = YPAD + RADIUS*2 (+YPAD)
 var RADIUS = 200;
 
-var XPAD = 5;
+var XPAD = 0;
 var YPAD = 5;
-var XSEP = 100;
+var XSEP = 20;
 
 function makeSVG() {
 
