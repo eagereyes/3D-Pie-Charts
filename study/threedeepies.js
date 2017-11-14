@@ -6,7 +6,7 @@ var RADIUS = 170;
 
 var XPAD = 10;
 var YPAD = 20;
-var XSEP = 120;
+var XSEP = 100;
 
 function makeSVG() {
 
@@ -144,18 +144,32 @@ function drawInteractionPie(drawInfo, centralAngle, radius, xPad) {
 		.attr('ry', radius)
 		.attr('class', 'grayslice interactive');
 
+	var xHandle = xPad+radius+radius*1.15*Math.cos(Math.PI/2-centralAngle);
+	var yHandle = YPAD+radius-radius*1.15*Math.sin(Math.PI/2-centralAngle);
+	
+	drawInfo.svg.append('line')
+		.attr('x1', xPad+radius)
+		.attr('y1', YPAD+radius)
+		.attr('x2', xHandle)
+		.attr('y2', yHandle)
+		.attr('class', 'handle interactive');
+
+	drawInfo.svg.append('ellipse')
+		.attr('cx', xHandle)
+		.attr('cy', yHandle)
+		.attr('rx', 8)
+		.attr('ry', 8)
+		.attr('class', 'blueslice interactive');
+
 	var xA = xPad+radius+radius*Math.cos(Math.PI/2-centralAngle);
 	var yA = YPAD+radius-radius*Math.sin(Math.PI/2-centralAngle);
-
-	var xB = xPad+radius;
-	var yB = YPAD;
 	
 	drawInfo.svg.append('path')
 		.attr('d', 'M '+(xPad+radius)+','+(YPAD+radius)+' '+
-		'L '+xB+','+yB+' '+
+		'L '+(xPad+radius)+','+YPAD+' '+
 		'A '+radius+','+radius+' 0 '+((centralAngle>Math.PI)?1:0)+' 1 '+
 		xA+','+yA+' Z')
-		.attr('class', 'blueslice');
+		.attr('class', 'blueslice interactive');
 }
 
 function ellipseArea(a, b, angle) {
