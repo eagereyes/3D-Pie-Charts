@@ -2,10 +2,10 @@
 
 // SVG width = XPAD + RADIUS*2 + XSEP + RADIUS*2 (+ XPAD)
 // SVG height = YPAD + RADIUS*2 (+YPAD)
-var RADIUS = 170;
+var RADIUS = 180;
 
-var XPAD = 10;
-var YPAD = 20;
+var XPAD = 20;
+var YPAD = 50;
 var XSEP = 100;
 
 function makeSVG() {
@@ -137,9 +137,12 @@ function drawInteractionPie(drawInfo, centralAngle, radius, xPad) {
 
 	drawInfo.svg.selectAll('.interactive').remove();
 
+	drawInfo.cx = xPad+radius;
+	drawInfo.cy = YPAD+radius;
+
 	drawInfo.svg.append('ellipse')
-		.attr('cx', xPad+radius)
-		.attr('cy', YPAD+radius)
+		.attr('cx', drawInfo.cx)
+		.attr('cy', drawInfo.cy)
 		.attr('rx', radius)
 		.attr('ry', radius)
 		.attr('class', 'grayslice interactive');
@@ -148,8 +151,8 @@ function drawInteractionPie(drawInfo, centralAngle, radius, xPad) {
 	var yHandle = YPAD+radius-radius*1.15*Math.sin(Math.PI/2-centralAngle);
 	
 	drawInfo.svg.append('line')
-		.attr('x1', xPad+radius)
-		.attr('y1', YPAD+radius)
+		.attr('x1', drawInfo.cx)
+		.attr('y1', drawInfo.cy)
 		.attr('x2', xHandle)
 		.attr('y2', yHandle)
 		.attr('class', 'handle interactive');
@@ -244,10 +247,39 @@ function predict(centralAngle, viewAngle, rotation) {
 	return predictions;
 }
 
+function updateGuess() {
+
+	if (drawInfo.mouseDown === false)
+		return;
+
+	var coords = d3.mouse(this);
+
+	var dx = coords[0]-drawInfo.cx;
+	var dy = coords[1]-drawInfo.cy;
+
+	var angle = Math.PI/2+Math.atan2(dy, dx);
+	if (angle < 0) {
+		angle += Math.PI*2;
+	}
+
+	var percent = angle/(Math.PI*2)*100;
+
+	console.log(percent.toFixed(1));
+}
+
 function init() {
-	var drawInfo = {}
+	var drawInfo = {
+		cx: 0,
+		cy: 0,
+		mouseDown: false
+	}
 	
 	drawInfo.svg = makeSVG();
 	
+	drawInfo.svg.on('mousedown', function() { drawInfo.mouseDown = true; });
+	drawInfo.svg.on('mouseup', function() { drawInfo.mouseDown = false; });
+	drawInfo.svg.on('mousemove', updateGuess);
+	
+
 	return drawInfo;
 }
