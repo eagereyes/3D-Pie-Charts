@@ -219,6 +219,7 @@
 					<div class="radio"><label><input type="radio" name="depth" value="2" onchange="redraw();"> Circles</label></div>
 					
 					Angle: <span id="angle"></span>&deg;<br/>
+					Guess: <span id="guess"></span>%<br/>
 					Projected: <span id="distortedAngle"></span>&deg;<br />
 					By Arc Length: <span id="angleByArc"></span>&deg;<br />
 					By Area: <span id="angleByArea"></span>&deg;<br />
@@ -251,7 +252,7 @@
 			var drawInfo = init();
 			
 			var trials;
-			
+
 			function rad(degrees) {
 				return degrees*Math.PI/180;
 			}
@@ -273,10 +274,12 @@
 				
 				var bodyHeight = +$('#bodyHeight')[0].value;
 				$('#bodyVal').text(bodyHeight);
+
+				$('#guess').text((drawInfo.guess*100).toFixed(1));
 				
 				draw3DPie(drawInfo, rad(centralAngle), rad(viewAngle), rad(rotation), RADIUS, bodyHeight, +$('input[name="depth"]:checked').val(), XPAD);
 
-				drawInteractionPie(drawInfo, rad(centralAngle), RADIUS, XPAD+2*RADIUS+XSEP);
+				drawInteractionPie(drawInfo, drawInfo.guess*Math.PI*2, RADIUS, XPAD+2*RADIUS+XSEP);
 
 				var predictions = predict(rad(centralAngle), rad(viewAngle), rad(rotation));
 				

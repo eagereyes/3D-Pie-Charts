@@ -262,24 +262,24 @@ function updateGuess() {
 		angle += Math.PI*2;
 	}
 
-	var percent = angle/(Math.PI*2)*100;
+	drawInfo.guess = Math.min(.99, Math.max(.01, angle/(Math.PI*2)));
 
-	console.log(percent.toFixed(1));
+	redraw();
 }
 
 function init() {
 	var drawInfo = {
 		cx: 0,
 		cy: 0,
-		mouseDown: false
+		mouseDown: false,
+		guess: .37
 	}
 	
 	drawInfo.svg = makeSVG();
 	
-	drawInfo.svg.on('mousedown', function() { drawInfo.mouseDown = true; });
+	drawInfo.svg.on('mousedown', function() { drawInfo.mouseDown = true; updateGuess(); });
 	drawInfo.svg.on('mouseup', function() { drawInfo.mouseDown = false; });
 	drawInfo.svg.on('mousemove', updateGuess);
-	
 
 	return drawInfo;
 }
