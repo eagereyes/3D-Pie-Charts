@@ -199,7 +199,7 @@ function submitResults() {
         csv += values.join(',') + '\n';
     });
 	
-	console.log(csv);
+	// console.log(csv);
 
 	d3.request(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
