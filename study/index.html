@@ -190,8 +190,8 @@
 			</div>
 			<div class="col-md-8 col-md-offset-1" id="thankyou">
 				<h1>Thank you!</h1>
-				<p>Thank you for completing the study! Please click the link below to have your work recorded on Prolific:</p>
-				<h2><a href="https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3">https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3</a></h2>
+				<p>Thank you for completing the study! You will be redirected to Prolific to record your work. Should that not happen within three seconds, please click the link below:</p>
+				<p id="completionlink"></p>
 			</div>
 			<div class="col-md-2">
 				<div id="infoPanel">
@@ -297,6 +297,8 @@
 								
 				var resultID = getParameterByName("PROLIFIC_PID")+"-"+getParameterByName("SESSION_ID");
 				
+				$('#completionlink').html('<a href="'+COMPLETIONURL+'">'+COMPLETIONURL+'</a>');
+
 				var demographics = {};
 				
 				d3.selectAll('input')

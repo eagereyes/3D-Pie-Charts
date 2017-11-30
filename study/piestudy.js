@@ -13,6 +13,8 @@ var NUM_ROTATIONS = 3;
 
 var RESULTSURL = 'http://study.eagereyes.org/pies/submit_csv.php';
 
+var COMPLETIONURL = 'https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3';
+
 var trialIndex = 0;
 
 var inBreak = false;
@@ -32,9 +34,9 @@ function makeTrials(resultID, condition, demographics) {
 	
 	var trials = [];
 
-	for (var i = 0; i < VIEWANGLES.length; i++) {
+	for (var i = 0; i < VIEWANGLES.length/3; i++) {
 
-		for (var j = 0; j < HEIGHTS.length; j++) {
+		for (var j = 0; j < HEIGHTS.length/3; j++) {
 			
 			if (i == 0 && j > 0)
 				continue;
@@ -105,6 +107,7 @@ function nextStep() {
 		submitResults();
 		
 		$('#thankyou').show();
+		setTimeout(function() { window.location = COMPLETIONURL; }, 3000);
 	}
 }
 
