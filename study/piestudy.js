@@ -15,6 +15,8 @@ var RESULTSURL = 'http://study.eagereyes.org/pies/submit_csv.php';
 
 var COMPLETIONURL = 'https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3';
 
+var CONDITION = 'directinput';
+
 var trialIndex = 0;
 
 var inBreak = false;
@@ -34,9 +36,9 @@ function makeTrials(resultID, condition, demographics) {
 	
 	var trials = [];
 
-	for (var i = 0; i < VIEWANGLES.length/3; i++) {
+	for (var i = 0; i < VIEWANGLES.length; i++) {
 
-		for (var j = 0; j < HEIGHTS.length/3; j++) {
+		for (var j = 0; j < HEIGHTS.length; j++) {
 			
 			if (i == 0 && j > 0)
 				continue;
@@ -158,7 +160,7 @@ function startStudy() {
 	$('#demographics').hide();
 	$('#cond2question').hide();
 	
-	trials = makeTrials(resultID, window.location.hash.substr(1), demographics);
+	trials = makeTrials(resultID, CONDITION, demographics);
 
 	trials[trialIndex].answer = .5;
 	drawInfo.guess = .5;
