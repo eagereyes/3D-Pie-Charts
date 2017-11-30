@@ -266,6 +266,7 @@ function updateGuess(that) {
 
 	if (inStudy) {
 		trials[trialIndex].answer = drawInfo.guess;
+		$('#nextBtn').prop('disabled', false);
 	}
 
 	if (inStudy) {
@@ -291,7 +292,8 @@ function init() {
 
 	d3.select("body").on('keydown', function() {
 		if (d3.event.key === " " || d3.event.key === "Enter") {
-			nextStep();
+			if ($('#nextBtn').prop('disabled') === false)
+				nextStep();
 		}
 	});
 
