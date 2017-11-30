@@ -295,6 +295,8 @@ function init() {
 			if ($('#nextBtn').prop('disabled') === false)
 				nextStep();
 		}
+
+		drawInfo.mouseDown = false;
 	});
 
 	return drawInfo;
