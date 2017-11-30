@@ -148,7 +148,7 @@
 		</div>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-1" id="question">
-				<h4>Change the size of the blue slice on the right so it matches the one on the left!</h4>
+				<h4>Use the handle on the right pie chart to make it show the same value as on the left!</h4>
 			</div>
 		</div>
 		<div class="row">
@@ -209,11 +209,6 @@
 					Projected: <span id="distortedAngle"></span>&deg;<br />
 					By Arc Length: <span id="angleByArc"></span>&deg;<br />
 					By Area: <span id="angleByArea"></span>&deg;<br />
-				</div>
-				
-				<div id="errors">
-					<p class="bg-danger error" id="outofrange">Please respond in percent (1-99)! Try again.</p>
-					<p class="bg-danger error" id="wrongpart">Please respond for the blue part of the pie! Try again.</p>
 				</div>
 			</div>
 		</div>
@@ -315,10 +310,6 @@
 				d3.selectAll('input')
 					.filter(function(d) { return this.name === 'degree' ? this : null; })
 					.on('change', function() { demographics.degree = this.value; validateDemographics(); });
-				
-				d3.selectAll('input')
-					.filter(function(d) { return this.name === 'how' ? this : null; })
-					.on('change', function() { validateHow(this.value); });			
 			}
 			
 		</script>
