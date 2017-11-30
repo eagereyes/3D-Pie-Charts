@@ -189,8 +189,8 @@
 			</div>
 			<div class="col-md-8 col-md-offset-1" id="thankyou">
 				<h1>Thank you!</h1>
-				<p>Thank you for completing the study! Please paste this code into the text field on Mechnical Turk:</p>
-				<h2 id="code"></h2>
+				<p>Thank you for completing the study! Please click the link below to have your work recorded on Prolific:</p>
+				<h2><a href="https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3">https://www.prolific.ac/submissions/complete?cc=NFBM5ZW3</a></h2>
 			</div>
 			<div class="col-md-2">
 				<div id="infoPanel">
@@ -283,6 +283,12 @@
 				$('#nextBtn').prop('disabled', value == '');
 			}
 
+			// from https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+			function getParameterByName(name) {
+				var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+				return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+			}
+
 			var inStudy = window.location.hash != '#panel';
 
 			if (!inStudy) {
@@ -293,11 +299,7 @@
 				redraw();
 			} else {
 								
-				var d = ''+(new Date()).getTime();
-				var s = '000000' + Math.floor(Math.random()*1000000);
-				var resultID = d + 'x' + s.substr(s.length-6);
-
-				$('#code').text(resultID);
+				var resultID = getParameterByName("PROLIFIC_PID");
 				
 				var demographics = {};
 				

@@ -265,7 +265,7 @@ function updateGuess(that) {
 	drawInfo.guess = Math.min(.995, Math.max(.005, angle/(Math.PI*2)));
 
 	if (inStudy) {
-		trials[trialIndex].answer = drawInfo.guess;
+		trials[trialIndex].answer = +drawInfo.guess.toFixed(3);
 		$('#nextBtn').prop('disabled', false);
 	}
 

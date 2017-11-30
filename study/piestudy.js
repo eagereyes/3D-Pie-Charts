@@ -87,11 +87,10 @@ function nextStep() {
 
 	trialIndex++;
 
-	trials[trialIndex].answer = .5;
-	drawInfo.guess = .5;
-
 	if (trialIndex < trials.length) {
 //	if (trialIndex < 10) {
+		trials[trialIndex].answer = .5;
+		drawInfo.guess = .5;
 		if (trialIndex === trials.length/3 || trialIndex === 2*trials.length/3) {
 			takeBreak();
 		} else {
@@ -193,7 +192,7 @@ function submitResults() {
 	
 //	console.log(csv);
 
-	d3.xhr(RESULTSURL)
+	d3.request(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
 		.post('resultID='+encodeURIComponent(trials[0].resultID)+'&'+
 			'data='+encodeURIComponent(csv))
