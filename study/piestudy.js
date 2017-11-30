@@ -186,6 +186,7 @@ function startStudy() {
 		.attr('id', function(d) { return 'progress-'+d; });
 
 	trialIndex = 0;
+	trials[trialIndex].startTime = (new Date()).getTime();
 	updatePie();
 }
 
@@ -198,7 +199,7 @@ function submitResults() {
         csv += values.join(',') + '\n';
     });
 	
-//	console.log(csv);
+	console.log(csv);
 
 	d3.request(RESULTSURL)
 		.header('content-type', 'application/x-www-form-urlencoded')
