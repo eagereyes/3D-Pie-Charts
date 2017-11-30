@@ -11,7 +11,7 @@ var NUMS_HIGH = [67,68,70,73,74,74,76,76,76,76,79,80,83,84,85,86,88,89,91,91,93,
 
 var NUM_ROTATIONS = 3;
 
-var RESULTSURL = 'http://study.eagereyes.org/3dpies/submit_csv.php';
+var RESULTSURL = 'http://study.eagereyes.org/pies/submit_csv.php';
 
 var trialIndex = 0;
 
@@ -156,6 +156,9 @@ function startStudy() {
 	$('#cond2question').hide();
 	
 	trials = makeTrials(resultID, window.location.hash.substr(1), demographics);
+
+	trials[trialIndex].answer = .5;
+	drawInfo.guess = .5;
 
 	showStudyStuff();
 

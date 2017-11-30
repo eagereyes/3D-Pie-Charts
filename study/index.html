@@ -97,15 +97,15 @@
 			<div class="col-md-6 col-md-offset-1">
 				<h1>Pie Charts Study</h1>
 				<p>This study examines how well people can read different pie charts.
-					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
-				<p>Please answer as accurately as possible, but don't dwell on individual charts. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
+					Your task is to look at a series of charts (on the left) and set a second chart (on the right) to show the same value.</p>
+				<img src="interface.png" width="863" height="400">
+				<p>Please answer as accurately as possible, but don't dwell on individual charts. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve your work.</p>
 				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
-				<p>In most browsers, you can enter a number into the answer field and then hit <em>Return</em> or <em>Enter</em> to advance to the next question. That is the faster way, but you can also click the <em>Next</em> button (especially if you're using Internet Explorer).</p>
-				<p>At the very end, you will see a code. Please copy and paste that code into the input field on the Mechanical Turk website.</p>
+				<p>To advance to the next question, you can either click the Next button or hit the <em>Space</em> or <em>Return</em>/<em>Enter</em> keys.</p>
 				<p>We really appreciate your help with this study. Thank you!</p>
 				<p>&nbsp;</p>
-				<!-- <button class="btn btn-primary pull-right" type="button" onclick="showDemographics();">Let's Go!</button> -->
-				<button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Let's Go!</button>
+				<button class="btn btn-primary pull-right" type="button" onclick="showDemographics();">Let's Go!</button>
+				<!-- <button class="btn btn-primary pull-right" type="button" onclick="startStudy();">Let's Go!</button> -->
 			</div>
 		</div>
 		<div class="row" id="demographics">
@@ -142,7 +142,7 @@
 					</div>
 				</div>
 
-				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="potentialNagScreen();">Start Study</button>
+				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="startStudy();">Start Study</button>
 			</div>
 		</div>
 		<div class="row">
