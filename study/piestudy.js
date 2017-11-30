@@ -76,40 +76,26 @@ function nextStep() {
 
 	if (inBreak) // otherwise, you can keep hitting return to advance during break
 		return;
-
-	$('.error').hide();
-
-	var response = +$('#percent').val();
-	
-	if (response < 1 || response > 99) {
-		$('#outofrange').show();
-		$('#percent').val('');
-		$('#nextBtn').prop('disabled', true);
-		trials[trialIndex].issue = 'range';
-		return
-	} else if (trialIndex < 10 && Math.abs(response-trials[trialIndex].value) > Math.abs(response-(100-trials[trialIndex].value))) {
-		$('#wrongpart').show();
-		$('#percent').val('');
-		$('#nextBtn').prop('disabled', true);
-		trials[trialIndex].issue = 'opposite';
-		return
-	}
 		
 	trials[trialIndex].endTime = (new Date()).getTime();
 	trials[trialIndex].duration = trials[trialIndex].endTime-trials[trialIndex].startTime;
 	trials[trialIndex].step = trialIndex;
-	trials[trialIndex].answer = response;
 		
 	$('#percent').val('');
 	$('#nextBtn').prop('disabled', true);
 	d3.select('#progress-'+trialIndex).classed('complete', true);
 
 	trialIndex++;
+
+	trials[trialIndex].answer = .5;
+	drawInfo.guess = .5;
+
 	if (trialIndex < trials.length) {
 //	if (trialIndex < 10) {
 		if (trialIndex === trials.length/3 || trialIndex === 2*trials.length/3) {
 			takeBreak();
 		} else {
+			trials[trialIndex].startTime = (new Date()).getTime();
 			updatePie();
 		}
 	} else {
@@ -125,9 +111,8 @@ function nextStep() {
 
 function updatePie() {
 	var trial = trials[trialIndex];
-	draw3DPie(drawInfo, rad(trial.centralAngle), rad(trial.viewAngle), rad(trial.rotation), HEIGHT/2, trial.height);
-	trials[trialIndex].startTime = (new Date()).getTime();
-	$('#percent').focus();
+	draw3DPie(drawInfo, rad(trial.centralAngle), rad(trial.viewAngle), rad(trial.rotation), RADIUS, trial.height, false, XPAD);
+	drawInteractionPie(drawInfo, drawInfo.guess*Math.PI*2, RADIUS, XPAD+2*RADIUS+XSEP);
 }
 
 function takeBreak() {
@@ -142,6 +127,7 @@ function endBreak() {
 	$('#percent').val('');
 	$('#nextBtn').prop('disabled', true);
 	showStudyStuff();
+	trials[trialIndex].startTime = (new Date()).getTime();
 	updatePie();
 }
 

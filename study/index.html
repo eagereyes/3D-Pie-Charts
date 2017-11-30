@@ -74,7 +74,7 @@
 			}
 			
 			#errors {
-				margin-top: 520px;
+				margin-top: 320px;
 			}
 			
 			label {
@@ -98,10 +98,6 @@
 				<h1>Pie Charts Study</h1>
 				<p>This study examines how well people can read different pie charts.
 					Your task is to read values from a series of charts	and enter them into a numeric input field.</p>
-				<div id="cond2">
-					<p><strong>Here's how to read these charts: Look at how much area is blue compared to the entire chart.
-						3D pie charts distort the angle of the slice, but not the area as a fraction of the whole! Your accuracy will be much higher if you go by area rather than by angle.</strong></p>
-				</div>
 				<p>Please answer as accurately as possible, but don't dwell on individual charts. If your accuracy is considerably worse than the average, we will not be able to use the data and won't approve the HIT.</p>
 				<p>The complete study should take about 15-20 minutes. You will be given a chance to rest after one third and two thirds of the questions.</p>
 				<p>In most browsers, you can enter a number into the answer field and then hit <em>Return</em> or <em>Enter</em> to advance to the next question. That is the faster way, but you can also click the <em>Next</em> button (especially if you're using Internet Explorer).</p>
@@ -149,20 +145,9 @@
 				<button class="btn btn-primary pull-right" type="button" id="doneDemographics" disabled="disabled" onclick="potentialNagScreen();">Start Study</button>
 			</div>
 		</div>
-		<div class="row" id="cond2question">
-			<div class="col-md-6 col-md-offset-1">
-				<h1>How are you supposed to read the charts?</h1>
-				<div class="radio"><label><input type="radio" name="how" value="angle"> Angle</label></div>
-				<div class="radio"><label><input type="radio" name="how" value="area"> Area</label></div>
-				<div class="radio"><label><input type="radio" name="how" value="arc"> Arc Length</label></div>
-				<p class="bg-danger error" id="cond2Wrong">Wrong! Please try again!</p>
-				<p class="bg-success error" id="cond2Correct">Correct! Area as a fraction of the entire chart does not change when the chart is projected into 3D.</p><br/>
-				<button class="btn btn-primary pull-right" id="cond2Start" type="button" disabled="disabled" onclick="startStudy();">Start Study</button></p>
-			</div>
-		</div>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-1" id="question">
-				<h4>What part of the whole (in percent) does the <span class="blue">blue slice</span> represent?</h4>
+				<h4>Change the size of the blue slice on the right so it matches the one on the left!</h4>
 			</div>
 		</div>
 		<div class="row">
@@ -295,42 +280,20 @@
 				}
 			}
 
-			function validateHow(answer) {
-				if (answer === 'area') {
-					$('#cond2Wrong').hide();
-					$('#cond2Correct').show();
-					$('#cond2Start').prop('disabled', false);
-				} else {
-					$('#cond2Wrong').show();
-					$('#cond2Correct').hide();
-					$('#cond2Start').prop('disabled', true);					
-				}
-			}
-
-			function potentialNagScreen() {
-				if (window.location.hash === '#cond2') {
-					$('#demographics').hide();
-					$('#cond2question').show();
-				} else {
-					startStudy();
-				}
-			}
-
 			function validatePercent(value) {
 				$('#nextBtn').prop('disabled', value == '');
 			}
 
-			if (window.location.hash === '#panel') {
+			var inStudy = window.location.hash != '#panel';
+
+			if (!inStudy) {
 				$('#infoPanel').show();
 				$('#pie').show();
 				$('#instructions').hide();
 
 				redraw();
 			} else {
-				
-				if (window.location.hash === '#cond2')
-					$('#cond2').show();
-				
+								
 				var d = ''+(new Date()).getTime();
 				var s = '000000' + Math.floor(Math.random()*1000000);
 				var resultID = d + 'x' + s.substr(s.length-6);

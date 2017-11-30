@@ -247,12 +247,12 @@ function predict(centralAngle, viewAngle, rotation) {
 	return predictions;
 }
 
-function updateGuess() {
+function updateGuess(that) {
 
 	if (drawInfo.mouseDown === false)
 		return;
 
-	var coords = d3.mouse(this);
+	var coords = d3.mouse(that);
 
 	var dx = coords[0]-drawInfo.cx;
 	var dy = coords[1]-drawInfo.cy;
@@ -262,9 +262,17 @@ function updateGuess() {
 		angle += Math.PI*2;
 	}
 
-	drawInfo.guess = Math.min(.99, Math.max(.01, angle/(Math.PI*2)));
+	drawInfo.guess = Math.min(.995, Math.max(.005, angle/(Math.PI*2)));
 
-	redraw();
+	if (inStudy) {
+		trials[trialIndex].answer = drawInfo.guess;
+	}
+
+	if (inStudy) {
+		updatePie();
+	} else {
+		redraw();
+	}
 }
 
 function init() {
@@ -277,9 +285,15 @@ function init() {
 	
 	drawInfo.svg = makeSVG();
 	
-	drawInfo.svg.on('mousedown', function() { drawInfo.mouseDown = true; updateGuess(); });
+	drawInfo.svg.on('mousedown', function() { drawInfo.mouseDown = true; updateGuess(this); });
 	drawInfo.svg.on('mouseup', function() { drawInfo.mouseDown = false; });
-	drawInfo.svg.on('mousemove', updateGuess);
+	drawInfo.svg.on('mousemove', function() { updateGuess(this); });
+
+	d3.select("body").on('keydown', function() {
+		if (d3.event.key === " " || d3.event.key === "Enter") {
+			nextStep();
+		}
+	});
 
 	return drawInfo;
 }
